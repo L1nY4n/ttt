@@ -1,26 +1,28 @@
 [package]
-name = "hyz-box"
+name = "x-box"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "another hardware device debug tool "
+authors = ["ly"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "hyz_box_lib"
+name = "x_box_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.0-beta", features = [] }
+tauri-build = { version = "2.0.0-beta.19", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-beta", features = [] }
-tauri-plugin-shell = "2.0.0-beta"
+tauri = { version = "=2.0.0-beta.24", features = [] }
+tauri-plugin-shell = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v2" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 socket2 = "0.5.7"
 tokio = { version ="1.38.0", features = ["full"] }
 thiserror = "1.0.61"
 chrono = {version="0.4.38",features= ["serde"] }
+local-ip-address = "0.6.1"
+serialport =  {version="4.3.0",features= ["serde"] }
 

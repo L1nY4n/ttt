@@ -38,10 +38,10 @@ export function DeviceList({ items }: DeviceListProps) {
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0">
-        {items.map((item,i) => {
+        {items.map((item) => {
           return (
             <button
-              key={i}
+              key={item.ip}
               className={cn(
                 "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
                 device.selected === item.mac && "bg-muted"
@@ -54,7 +54,7 @@ export function DeviceList({ items }: DeviceListProps) {
               <div className="flex flex-col w-full gap-1">
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
-                    <div className="font-semibold">{item.ip}</div>
+                    <div className="font-semibold">{item.name}</div>
                     {!item.mac && (
                       <span className="flex w-2 h-2 bg-blue-600 rounded-full" />
                     )}

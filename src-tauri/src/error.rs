@@ -3,8 +3,15 @@
 pub enum Error {
     #[error("Failed to read file: {0}")]
     Io(#[from] std::io::Error),
+    #[error("serialport error: {0}")]
+    SerialPort(#[from] serialport::Error),
     #[error("File is not valid utf8: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
+    
+    #[error("SendError: {0}")]
+    SendError(String),
+    #[error("Unknown")]
+    Unknown
 }
 
 // we must also implement serde::Serialize

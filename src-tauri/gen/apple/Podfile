@@ -1,13 +1,13 @@
 # Uncomment the next line to define a global platform for your project
 
-target 'hyz-box_iOS' do
+target 'x-box_iOS' do
 platform :ios, '13.0'
-  # Pods for hyz-box_iOS
+  # Pods for x-box_iOS
 end
 
-target 'hyz-box_macOS' do
+target 'x-box_macOS' do
 platform :osx, '11.0'
-  # Pods for hyz-box_macOS
+  # Pods for x-box_macOS
 end
 
 # Delete the deployment target for iOS and macOS, causing it to be inherited from the Podfile

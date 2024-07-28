@@ -1,6 +1,6 @@
-name: hyz-box
+name: x-box
 options:
-  bundleIdPrefix: com.hyz.dev
+  bundleIdPrefix: com.x.dev
   deploymentTarget:
     iOS: 13.0
 fileGroups: [../../src]
@@ -10,8 +10,8 @@ configs:
 settingGroups:
   app:
     base:
-      PRODUCT_NAME: hyz-box
-      PRODUCT_BUNDLE_IDENTIFIER: com.hyz.dev
+      PRODUCT_NAME: x-box
+      PRODUCT_BUNDLE_IDENTIFIER: com.x.dev
       DEVELOPMENT_TEAM: 4G2J2LTZ4A
 targetTemplates:
   app:
@@ -25,20 +25,20 @@ targetTemplates:
     settings:
       groups: [app]
 targets:
-  hyz-box_iOS:
+  x-box_iOS:
     type: application
     platform: iOS
     sources:
       - path: Sources
       - path: Assets.xcassets
       - path: Externals
-      - path: hyz-box_iOS
+      - path: x-box_iOS
       - path: assets
         buildPhase: resources
         type: folder
       - path: LaunchScreen.storyboard
     info:
-      path: hyz-box_iOS/Info.plist
+      path: x-box_iOS/Info.plist
       properties:
         LSRequiresIPhoneOS: true
         UILaunchStoryboardName: LaunchScreen
@@ -52,10 +52,10 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-        CFBundleShortVersionString: 0.0.0
-        CFBundleVersion: 0.0.0
+        CFBundleShortVersionString: 0.0.2
+        CFBundleVersion: 0.0.2
     entitlements:
-      path: hyz-box_iOS/hyz-box_iOS.entitlements
+      path: x-box_iOS/x-box_iOS.entitlements
     scheme:
       environmentVariables:
         RUST_BACKTRACE: full
@@ -73,7 +73,7 @@ targets:
         EXCLUDED_ARCHS[sdk=iphoneos*]: arm64-sim x86_64
       groups: [app]
     dependencies:
-      - framework: libhyz_box_lib.a
+      - framework: libx_box_lib.a
         embed: false
       - sdk: CoreGraphics.framework
       - sdk: Metal.framework
@@ -87,6 +87,6 @@ targets:
         name: Build Rust Code
         basedOnDependencyAnalysis: false
         outputFiles:
-          - $(SRCROOT)/Externals/x86_64/${CONFIGURATION}/libhyz_box_lib.a
-          - $(SRCROOT)/Externals/arm64/${CONFIGURATION}/libhyz_box_lib.a
-          - $(SRCROOT)/Externals/arm64-sim/${CONFIGURATION}/libhyz_box_lib.a
+          - $(SRCROOT)/Externals/x86_64/${CONFIGURATION}/libx_box_lib.a
+          - $(SRCROOT)/Externals/arm64/${CONFIGURATION}/libx_box_lib.a
+          - $(SRCROOT)/Externals/arm64-sim/${CONFIGURATION}/libx_box_lib.a
