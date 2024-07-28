@@ -1,17 +1,19 @@
 import { ComponentProps } from "react"
-//import formatDistanceToNow from "date-fns/formatDistanceToNow"
-
+import {formatDistanceToNow} from "date-fns/formatDistanceToNow"
+import { zhCN } from 'date-fns/locale'
 import { cn } from "@/lib/utils"
 
 import { atom, useAtom } from "jotai"
 
-import { ScrollArea } from "@radix-ui/react-scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 import { Badge } from "@/components/ui/badge"
 
 export type Device = {
     ip: string
     mac: string 
-    name: string |null  
+    name: string |null,
+    date: Date,  
     text: string,
     labels: string[],
     subject: string
@@ -36,57 +38,59 @@ export function DeviceList({ items }: DeviceListProps) {
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0">
-        {items.map((item,i) => (
-          <button
-            key={i}
-            className={cn(
-              "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-              device.selected === item.mac && "bg-muted"
-            )}
-            onClick={() =>
-              setDevice({
+        {items.map((item,i) => {
+          return (
+            <button
+              key={i}
+              className={cn(
+                "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
+                device.selected === item.mac && "bg-muted"
+              )}
+              onClick={() => setDevice({
                 ...device,
                 selected: item.mac,
-              })
-            }
-          >
-            <div className="flex flex-col w-full gap-1">
-              <div className="flex items-center">
+              })}
+            >
+              <div className="flex flex-col w-full gap-1">
+                <div className="flex items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="font-semibold">{item.ip}</div>
+                    {!item.mac && (
+                      <span className="flex w-2 h-2 bg-blue-600 rounded-full" />
+                    )}
+                  </div>
+                  <div
+                    className={cn(
+                      "ml-auto text-xs",
+                      device.selected === item.mac
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {formatDistanceToNow(item.date, {
+              locale:zhCN,
+              addSuffix: true,
+              includeSeconds: true,
+            })} 
+                  </div>
+                </div>
+                <div className="text-xs font-medium">{item.subject}</div>
+              </div>
+              <div className="text-xs line-clamp-2 text-muted-foreground">
+                {item.text.substring(0, 300)}
+              </div>
+              {item.labels.length ? (
                 <div className="flex items-center gap-2">
-                  <div className="font-semibold">{item.ip}</div>
-                  {!item.mac && (
-                    <span className="flex w-2 h-2 bg-blue-600 rounded-full" />
-                  )}
+                  {item.labels.map((label) => (
+                    <Badge key={label} variant={getBadgeVariantFromLabel(label)}>
+                      {label}
+                    </Badge>
+                  ))}
                 </div>
-                <div
-                  className={cn(
-                    "ml-auto text-xs",
-                    device.selected === item.mac
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {/* {formatDistanceToNow(new Date(item.date), {
-                    addSuffix: true,
-                  })} */}
-                </div>
-              </div>
-              <div className="text-xs font-medium">{item.subject}</div>
-            </div>
-            <div className="text-xs line-clamp-2 text-muted-foreground">
-              {item.text.substring(0, 300)}
-            </div>
-            {item.labels.length ? (
-              <div className="flex items-center gap-2">
-                {item.labels.map((label) => (
-                  <Badge key={label} variant={getBadgeVariantFromLabel(label)}>
-                    {label}
-                  </Badge>
-                ))}
-              </div>
-            ) : null}
-          </button>
-        ))}
+              ) : null}
+            </button>
+          )
+        })}
       </div>
     </ScrollArea>
   )
