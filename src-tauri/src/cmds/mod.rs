@@ -5,7 +5,7 @@ use std::{
 
 use chrono::{Local, NaiveDateTime};
 use serde::{Deserialize, Serialize};
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use tokio::sync::{mpsc, Mutex};
 
 use crate::SystmEvent;
