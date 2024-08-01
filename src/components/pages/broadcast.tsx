@@ -73,10 +73,10 @@ function Broadcast() {
   return (
     <Tabs defaultValue="all">
       <div className="flex items-center px-4 py-2">
-        <h1 className="text-xl font-bold">扫描</h1>
+        <h1 className="text-xl font-bold">Scan</h1>
         <TabsList className="ml-auto">
           <TabsTrigger value="all" className="text-zinc-600 dark:text-zinc-200">
-            所有设备
+            All
           </TabsTrigger>
           <TabsTrigger value="eps" className="text-zinc-600 dark:text-zinc-200">
             ESP
@@ -96,7 +96,7 @@ function Broadcast() {
             <Input
               className="w-40"
               type="text"
-              defaultValue={"239.255.255.250"}
+              defaultValue={"192.168.101.112"}
               placeholder="Ip"
               onChange={(e) => setIp(e.currentTarget.value)}
             />

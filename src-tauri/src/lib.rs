@@ -16,6 +16,7 @@ pub fn run() {
     tauri::Builder::default()
         .manage(cmds::broadcast::BroadcastState::new())
         .manage(cmds::serialport::State::new())
+        .manage(cmds::mqtt::State::new())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             cmds::broadcast::create_broadcast,
@@ -26,6 +27,9 @@ pub fn run() {
             cmds::serialport::open_port,
             cmds::serialport::close_port,  
             cmds::serialport::write_port,
+
+            cmds::mqtt::create_mqtt_client,
+            cmds::mqtt::close_mqtt_client
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

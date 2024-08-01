@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { listen } from "@tauri-apps/api/event";
 import "./globals.css";
-import { RadarIcon, PocketKnife, Settings, Cog } from "lucide-react";
+import { RadarIcon, PocketKnife, Settings, BluetoothIcon,Usb } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Route, Routes } from "react-router-dom";
@@ -20,6 +20,7 @@ import { Label } from "./components/ui/label";
 
 import Broadcast from "./components/pages/broadcast";
 import SerialPort from "./components/pages/serialport";
+import BluetoothView from "@/components/pages/bluetooth/index";
 
 type SystemEvent = {
   title: string;
@@ -116,14 +117,23 @@ function App() {
               path: "/",
               icon: RadarIcon,
               variant: "default",
+              animate: "animate-spin"
             },
 
             {
               title: "Serialport",
               path: "/serialport",
               label: "",
-              icon: Cog,
+              icon: Usb,
               variant: "ghost",
+            },
+            {
+              title: "Bluetooth",
+              path: "/bluetooth",
+              label: "",
+              icon: BluetoothIcon,
+              variant: "ghost",
+              animate: "animate-bounce"
             },
           ]}
         />
@@ -146,6 +156,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Broadcast />} />
           <Route path="/serialport" element={<SerialPort  />} />
+          <Route path="/bluetooth" element={<BluetoothView  />} />
         </Routes>
       </ResizablePanel>
     </ResizablePanelGroup>

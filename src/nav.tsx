@@ -12,12 +12,12 @@ import {
 interface NavProps {
   isCollapsed: boolean
   links: {
-    
+    animate?: string
     title: string
     label?: string
     path:string,
     icon: LucideIcon
-    variant: "default" | "ghost"
+    variant: "default" | "ghost" | "outline"
   }[]
 }
 
@@ -42,7 +42,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                       "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
                   )}
                 >
-                  <link.icon className={cn("w-4 h-4", link.path === location.pathname && "animate-spin")} />
+                  <link.icon className={cn("w-4 h-4", link.path === location.pathname && link.animate)} />
                   <span className="sr-only">{link.title}</span>
                 </NavLink>
               </TooltipTrigger>
@@ -66,7 +66,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                 "justify-start"
               )}
             >
-             <link.icon className={cn("w-4 h-4 mr-2", link.path === location.pathname && "animate-spin")} />
+             <link.icon className={cn("w-4 h-4 mr-2", link.path === location.pathname  && link.animate)} />
               {link.title}
               {link.label && (
                 <span

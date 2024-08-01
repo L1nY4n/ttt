@@ -4,7 +4,7 @@ use std::{time::Duration};
 use chrono::{Local, NaiveDateTime};
 use serde::Serialize;
 use serialport::{DataBits, Parity, SerialPort, StopBits};
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use tokio::sync::{mpsc, Mutex};
 
 
