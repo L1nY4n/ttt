@@ -1,5 +1,4 @@
-use rumqttc::{AsyncClient, MqttOptions, QoS};
-
+use rumqttc::{ AsyncClient, MqttOptions, QoS};
 
 use chrono::{Local, NaiveDateTime};
 
@@ -53,7 +52,7 @@ impl State {
 }
 
 #[tauri::command]
-pub async fn create_mqtt_client(
+pub async fn mqtt_create_client(
     client_id: String,
     addr: String,
     port: u16,
@@ -91,6 +90,7 @@ pub async fn create_mqtt_client(
 
                           },
                           MqttClientMsg::Close => {
+                            println!("close ");
                                 let _ = client.disconnect().await;
                                 break;
                           },
@@ -146,11 +146,36 @@ pub async fn create_mqtt_client(
 }
 
 #[tauri::command]
-pub async fn close_mqtt_client(state: tauri::State<'_, State>) -> Result<(), String> {
+pub async fn mqtt_close_client(state: tauri::State<'_, State>) -> Result<(), String> {
     let tx = state.tx.lock().await;
     match tx.as_ref() {
         Some(sender) => sender
             .send(MqttClientMsg::Close)
+            .await
+            .map_err(|e| e.to_string()),
+        None => Ok(()),
+    }
+}
+
+#[tauri::command]
+pub async fn mqtt_publish(
+    topic: String,
+    playload: String,
+    qos: u8,
+    retain: bool,
+    state: tauri::State<'_, State>,
+) -> Result<(), String> {
+    let qos_ = rumqttc::qos(qos).unwrap_or(QoS::AtMostOnce);
+    let data = MqttPublishData {
+        topic: topic,
+        qos: qos_,
+        retain: retain,
+        playload: playload,
+    };
+    let tx = state.tx.lock().await;
+    match tx.as_ref() {
+        Some(sender) => sender
+            .send(MqttClientMsg::SendData(data))
             .await
             .map_err(|e| e.to_string()),
         None => Ok(()),

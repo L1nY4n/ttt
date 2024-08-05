@@ -76,7 +76,7 @@ function App() {
           sizes
         )}`;
       }}
-      className="h-full max-h-[800px] items-stretch"
+      className="items-stretch h-screen"
     >
       <ResizablePanel
         
@@ -128,7 +128,7 @@ function App() {
               variant: "ghost",
             },
             {
-              title: "Bluetooth",
+              title: "MQTT-BLE",
               path: "/bluetooth",
               label: "",
               icon: BluetoothIcon,

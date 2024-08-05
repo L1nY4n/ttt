@@ -28,8 +28,9 @@ pub fn run() {
             cmds::serialport::close_port,  
             cmds::serialport::write_port,
 
-            cmds::mqtt::create_mqtt_client,
-            cmds::mqtt::close_mqtt_client
+            cmds::mqtt::mqtt_create_client,
+            cmds::mqtt::mqtt_close_client,
+            cmds::mqtt::mqtt_publish
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
