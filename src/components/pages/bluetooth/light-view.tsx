@@ -7,17 +7,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import { differenceInMinutes } from "date-fns/differenceInMinutes";
+
 import { zhCN } from "date-fns/locale";
 import {
   ArrowDownUp,
   BluetoothOff,
   Construction,
-
   Lightbulb,
   LightbulbOff,
   PersonStanding,
   Router,
-
   Settings2,
   TrainFront,
   Zap,
@@ -39,14 +39,18 @@ type LightViewProps = {
   onModeChange: (mode: number) => void;
 };
 
-function LightView({ info,onStatusChange, onModeChange }: LightViewProps) {
-  const status_on = <Lightbulb className="w-4 h-4 text-amber-600 animate-ping" />;
-  const status_off = <LightbulbOff className="w-4 h-4 text-cyan-600" />;
-  const status_flash = <Zap className="w-4 h-4 text-purple-600 duration-150 animate-pulse" />;
+function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
+  const status_on = <Lightbulb className="w-4 h-4 text-orange-400" />;
+  const status_off = <LightbulbOff className="w-4 h-4 text-gray-600" />;
+  const status_flash = (
+    <Zap className="w-4 h-4 text-purple-600 duration-150 animate-pulse" />
+  );
 
   const mode_running = <TrainFront className="w-4 h-4 text-green-500" />;
   const mode_engineering = <Construction className="w-4 h-4 text-slate-600" />;
-  const mode_induction = <PersonStanding className="w-4 h-4 text-indigo-600 " />;
+  const mode_induction = (
+    <PersonStanding className="w-4 h-4 text-indigo-600 " />
+  );
 
   const modeList = [
     { title: "Running", value: 1, icon: mode_running },
@@ -79,9 +83,14 @@ function LightView({ info,onStatusChange, onModeChange }: LightViewProps) {
         : mode_induction
     : null;
   return (
-    <div className="relative w-40 p-1 ">
+    <div className="relative w-40 p-1">
       <div className="flex items-center gap-2 ">
-        <Router className="w-4 h-4" />
+        <Router
+          className={cn(
+            "w-4 h-4",
+            differenceInMinutes(new Date(), info.date)  < 10  ?  "text-green-500" : "text-gray-300"
+          )}
+        />
         <div>{info.addr}</div>
         <div className="text-[75%] text-muted-foreground">
           {formatDistanceToNow(info.date, {
@@ -102,7 +111,6 @@ function LightView({ info,onStatusChange, onModeChange }: LightViewProps) {
             <div className="flex items-center">
               <div className="flex items-center gap-2">
                 <div className="font-semibold">
-                  {" "}
                   <Badge>{info.name}</Badge>
                 </div>
                 <DropdownMenu>
@@ -145,7 +153,7 @@ function LightView({ info,onStatusChange, onModeChange }: LightViewProps) {
                         <DropdownMenuItem
                           key={item.value}
                           onClick={() => {
-                           onModeChange(item.value);
+                            onModeChange(item.value);
                           }}
                         >
                           {item.title}

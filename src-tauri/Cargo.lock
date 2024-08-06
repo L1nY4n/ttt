@@ -3860,6 +3860,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
+name = "ttt"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "local-ip-address",
+ "rumqttc",
+ "serde",
+ "serde_json",
+ "serialport",
+ "socket2",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-shell",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "typeid"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4620,24 +4638,6 @@ dependencies = [
  "windows-core 0.57.0",
  "windows-version",
  "x11-dl",
-]
-
-[[package]]
-name = "x-box"
-version = "0.0.0"
-dependencies = [
- "chrono",
- "local-ip-address",
- "rumqttc",
- "serde",
- "serde_json",
- "serialport",
- "socket2",
- "tauri",
- "tauri-build",
- "tauri-plugin-shell",
- "thiserror",
- "tokio",
 ]
 
 [[package]]

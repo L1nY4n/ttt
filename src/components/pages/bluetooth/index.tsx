@@ -26,7 +26,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import LightView from "./light-view";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -84,11 +83,12 @@ function Bluetooth() {
       .then((_) => {
         setConnected(true);
         toast.success("NICE !!!", {
+          duration: 1000,
           description: "MQTT connected" + addr + ":" + port,
         });
       })
       .catch((error) => {
-        toast.error("监听失败", {
+        toast.error("MQTT connecting error", {
           description: error,
         });
       });
@@ -144,8 +144,6 @@ function Bluetooth() {
   function clearHistory() {
     setHistory([]);
   }
-
-
 
   return (
     <div className="flex flex-col flex-grow h-screen">
@@ -203,7 +201,7 @@ function Bluetooth() {
                 <Send className="w-4 h-4 mr-2 animate-pulse" />
                 Send
               </Button>
-              <Sheet modal={false}  >
+              <Sheet modal={false}>
                 <SheetTrigger asChild>
                   <Button variant="outline" size={"icon"}>
                     <List className="w-4 h-4" />
@@ -223,36 +221,33 @@ function Bluetooth() {
                       </Button>
                     </SheetDescription>
                   </SheetHeader>
-           
-                  <ScrollArea className="h-[calc(100%-80px)]"  >
-                
-                      {history.map((item, i) => (
-                        <div
-                          key={i}
-                          className={cn(
-                            "flex flex-col items-start gap-2 p-1 mt-2 text-xs text-left border rounded-lg hover:bg-accent w-[80%]",
-                           item.dir === "down" ? "float-left" : "float-right"
-                          )}
-                        >
-                          <div className="flex items-center w-full">
-                          {item.dir === "up" ? (
-                              <ArrowBigUpDash className="w-5 h-5 text-cyan-600" />
-                            ) : (
-                              <ArrowBigDownDash className="w-5 h-5 text-green-600" />
-                            )}
-                            <span className="ml-1">
-                              {item.topic.replace(
-                                "/application/GW-BM-TCP/device/",
-                                ""
-                              )}
-                            </span>
-                        
-                          </div>
 
-                          <div>{JSON.stringify(item.payload, null, 2)}</div>
+                  <ScrollArea className="h-[calc(100%-70px)] ">
+                    {history.map((item, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "flex flex-col items-start gap-2 p-1 mt-2 mr-3 text-xs text-left border rounded-lg hover:bg-accent w-[80%]",
+                          item.dir === "down" ? "float-left" : "float-right"
+                        )}
+                      >
+                        <div className="flex items-center w-full">
+                          {item.dir === "up" ? (
+                            <ArrowBigUpDash className="w-5 h-5 text-cyan-600" />
+                          ) : (
+                            <ArrowBigDownDash className="w-5 h-5 text-green-600" />
+                          )}
+                          <span className="ml-1">
+                            {item.topic.replace(
+                              "/application/GW-BM-TCP/device/",
+                              ""
+                            )}
+                          </span>
                         </div>
-                      ))}
-                
+
+                        <div>{JSON.stringify(item.payload, null, 4)}</div>
+                      </div>
+                    ))}
                   </ScrollArea>
 
                   <SheetFooter></SheetFooter>
@@ -293,18 +288,26 @@ function Bluetooth() {
             {treeData.map((gw) => {
               const title = (
                 <div className="p-2 bg-gray-300 rounded-md">
-                  <div>
-                    {gw.name}{" "}
+                  <div className="flex justify-between ">
+                    <b> {gw.name}</b>
                     <code className="p-0.5 text-xs text-green-500 rounded-full ">
                       {gw.children?.length}
                     </code>
                   </div>
+                  <div></div>
                   <div>
-                    {" "}
                     <div className="flex items-center text-xs">
+                      <i className="text-xs text-neutral-600">
+                        {gw.data.dev_model}
+                      </i>
+                      <Separator className="mx-1" orientation="vertical" />
                       <i className="text-blue-400">{gw.ipaddr} </i>
-                      <a target="_blank" href={"http://" + gw.ipaddr} className="ml-1">
-                      <SquareArrowOutUpRight className="w-3 h-3" />
+                      <a
+                        target="_blank"
+                        href={"http://" + gw.ipaddr}
+                        className="ml-1"
+                      >
+                        <SquareArrowOutUpRight className="w-3 h-3" />
                       </a>
                     </div>
                   </div>

@@ -1,5 +1,5 @@
 [package]
-name = "x-box"
+name = "ttt"
 version = "0.0.0"
 description = "another hardware device debug tool "
 authors = ["ly"]

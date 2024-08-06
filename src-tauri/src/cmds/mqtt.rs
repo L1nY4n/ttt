@@ -41,11 +41,13 @@ enum MqttClientMsg {
 }
 
 pub struct State {
+    connected: bool,
     tx: Mutex<Option<mpsc::Sender<MqttClientMsg>>>,
 }
 impl State {
     pub fn new() -> Self {
         State {
+            connected: false,
             tx: Mutex::new(None),
         }
     }
@@ -73,7 +75,7 @@ pub async fn mqtt_create_client(
     let (manager_tx, mut manager_rx) = mpsc::channel::<MqttClientMsg>(1);
     let app_clone = app.clone();
     let state = app.state::<State>();
-
+   
     let mut mtx = state.tx.lock().await;
     *mtx = Some(manager_tx);
     tauri::async_runtime::spawn(async move {

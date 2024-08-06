@@ -108,9 +108,9 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
               data: { ...list[index].data, ...data },
             };
           } else {
-            const i = list[index].children?.findIndex((item) => {
-              return item.addr === msg.src_addr;
-            });
+            // const i = list[index].children?.findIndex((item) => {
+            //   return item.addr === msg.src_addr;
+            // });
           }
         }
 

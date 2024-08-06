@@ -168,7 +168,7 @@ export const Cmd = (after?: (res: CmdResult) => any) => {
       topic,
       payload: {
         opcode: OpType.LIGHT_SET_ONOFF,
-        mesh_dev_type: 0,
+       time_stamp : 1000,
         dest_addr: light_addr,
         value: status,
       },
