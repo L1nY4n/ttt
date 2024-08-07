@@ -30,7 +30,8 @@ pub fn run() {
 
             cmds::mqtt::mqtt_create_client,
             cmds::mqtt::mqtt_close_client,
-            cmds::mqtt::mqtt_publish
+            cmds::mqtt::mqtt_publish,
+            cmds::mqtt::mqtt_state
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

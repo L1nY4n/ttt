@@ -59,6 +59,15 @@ function Bluetooth() {
         unlisten = v;
       });
     }
+
+    invoke("mqtt_state").then((res) => {
+      console.log(res)
+      const { connected } = res as { connected: boolean };
+   
+      setConnected(connected as boolean);
+    });
+
+
     return () => {
       !!unlisten && unlisten();
       if (treeData.length > 0) {

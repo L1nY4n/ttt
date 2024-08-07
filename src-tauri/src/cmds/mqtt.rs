@@ -1,4 +1,4 @@
-use rumqttc::{ AsyncClient, MqttOptions, QoS};
+use rumqttc::{AsyncClient, MqttOptions, QoS};
 
 use chrono::{Local, NaiveDateTime};
 
@@ -40,17 +40,23 @@ enum MqttClientMsg {
     Close,
 }
 
+#[derive(Serialize, Clone)]
+pub struct MqttState {
+    connected: bool
+}
+
 pub struct State {
     connected: bool,
-    tx: Mutex<Option<mpsc::Sender<MqttClientMsg>>>,
+    tx: Option<mpsc::Sender<MqttClientMsg>>,
 }
 impl State {
-    pub fn new() -> Self {
-        State {
+    pub fn new() -> Mutex<Self> {
+        Mutex::new(State {
             connected: false,
-            tx: Mutex::new(None),
-        }
+            tx: None,
+        })
     }
+    
 }
 
 #[tauri::command]
@@ -74,10 +80,11 @@ pub async fn mqtt_create_client(
     println!("{:#?}", client);
     let (manager_tx, mut manager_rx) = mpsc::channel::<MqttClientMsg>(1);
     let app_clone = app.clone();
-    let state = app.state::<State>();
-   
-    let mut mtx = state.tx.lock().await;
-    *mtx = Some(manager_tx);
+    let state = app.state::<Mutex<State>>();
+
+    let mut s = state.lock().await;
+    s.connected = true;
+    s.tx = Some(manager_tx);
     tauri::async_runtime::spawn(async move {
         loop {
             tokio::select! {
@@ -94,6 +101,9 @@ pub async fn mqtt_create_client(
                           MqttClientMsg::Close => {
                             println!("close ");
                                 let _ = client.disconnect().await;
+                                let   s =  app_clone.state::<Mutex<State>>();
+                                let mut  s = s.lock().await;
+                                s.connected = false;
                                 break;
                           },
                       }
@@ -148,9 +158,9 @@ pub async fn mqtt_create_client(
 }
 
 #[tauri::command]
-pub async fn mqtt_close_client(state: tauri::State<'_, State>) -> Result<(), String> {
-    let tx = state.tx.lock().await;
-    match tx.as_ref() {
+pub async fn mqtt_close_client(state: tauri::State<'_, Mutex<State>>) -> Result<(), String> {
+    let state = state.lock().await;
+    match state.tx.as_ref() {
         Some(sender) => sender
             .send(MqttClientMsg::Close)
             .await
@@ -165,7 +175,7 @@ pub async fn mqtt_publish(
     playload: String,
     qos: u8,
     retain: bool,
-    state: tauri::State<'_, State>,
+    state: tauri::State<'_, Mutex<State>>
 ) -> Result<(), String> {
     let qos_ = rumqttc::qos(qos).unwrap_or(QoS::AtMostOnce);
     let data = MqttPublishData {
@@ -174,8 +184,8 @@ pub async fn mqtt_publish(
         retain: retain,
         playload: playload,
     };
-    let tx = state.tx.lock().await;
-    match tx.as_ref() {
+    let state = state.lock().await;
+    match state.tx.as_ref() {
         Some(sender) => sender
             .send(MqttClientMsg::SendData(data))
             .await
@@ -183,3 +193,17 @@ pub async fn mqtt_publish(
         None => Ok(()),
     }
 }
+
+
+#[tauri::command]
+pub async fn mqtt_state(
+    state: tauri::State<'_, Mutex<State>>
+) -> Result<MqttState, String> {
+  
+    let s = state.lock().await;
+
+    Ok(MqttState{
+        connected: s.connected
+    })
+}
+
