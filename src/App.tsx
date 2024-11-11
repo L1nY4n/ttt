@@ -112,8 +112,8 @@ function App() {
           isCollapsed={isCollapsed}
           links={[
             {
-              title: "UDP Broadcast",
-              label: "11",
+              title: "Scan",
+              label: "-",
               path: "/",
               icon: RadarIcon,
               variant: "default",

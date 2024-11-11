@@ -1,13 +1,13 @@
 # Uncomment the next line to define a global platform for your project
 
-target 'x-box_iOS' do
+target 'ttt_iOS' do
 platform :ios, '13.0'
-  # Pods for x-box_iOS
+  # Pods for ttt_iOS
 end
 
-target 'x-box_macOS' do
+target 'ttt_macOS' do
 platform :osx, '11.0'
-  # Pods for x-box_macOS
+  # Pods for ttt_macOS
 end
 
 # Delete the deployment target for iOS and macOS, causing it to be inherited from the Podfile

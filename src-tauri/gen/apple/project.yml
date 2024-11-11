@@ -1,4 +1,4 @@
-name: x-box
+name: ttt
 options:
   bundleIdPrefix: com.x.dev
   deploymentTarget:
@@ -10,9 +10,10 @@ configs:
 settingGroups:
   app:
     base:
-      PRODUCT_NAME: x-box
+      PRODUCT_NAME: ttt
       PRODUCT_BUNDLE_IDENTIFIER: com.x.dev
       DEVELOPMENT_TEAM: 4G2J2LTZ4A
+      CODE_SIGN_STYLE: Automatic
 targetTemplates:
   app:
     type: application
@@ -25,20 +26,20 @@ targetTemplates:
     settings:
       groups: [app]
 targets:
-  x-box_iOS:
+  ttt_iOS:
     type: application
     platform: iOS
     sources:
       - path: Sources
       - path: Assets.xcassets
       - path: Externals
-      - path: x-box_iOS
+      - path: ttt_iOS
       - path: assets
         buildPhase: resources
         type: folder
       - path: LaunchScreen.storyboard
     info:
-      path: x-box_iOS/Info.plist
+      path: ttt_iOS/Info.plist
       properties:
         LSRequiresIPhoneOS: true
         UILaunchStoryboardName: LaunchScreen
@@ -55,7 +56,7 @@ targets:
         CFBundleShortVersionString: 0.0.2
         CFBundleVersion: 0.0.2
     entitlements:
-      path: x-box_iOS/x-box_iOS.entitlements
+      path: ttt_iOS/ttt_iOS.entitlements
     scheme:
       environmentVariables:
         RUST_BACKTRACE: full
