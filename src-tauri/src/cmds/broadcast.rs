@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager};
 use tokio::sync::{mpsc, Mutex};
 
-use crate::SystmEvent;
+use crate::{protocol::{command::{broadcast_scan::Scan, ServerCommand}, Packet}, SystmEvent};
 
 #[derive(Default, Serialize, Deserialize, Clone)]
 struct Device {
@@ -23,7 +23,7 @@ struct Device {
 }
 
 enum BroadcastMsg {
-    SendData(String),
+    SendData(Packet),
     Cancel,
 }
 
@@ -76,9 +76,9 @@ pub async fn create_broadcast(
                      break;
                  };
                   match input {
-                      BroadcastMsg::SendData(str) => {
-                        let bytes = str.into_bytes().into_boxed_slice();
-
+                      BroadcastMsg::SendData(pkt) => {
+                        let bytes =pkt.as_bytes();
+                        println!("send {:02X}",bytes);
                        let  _ =  udp.send_to(&bytes, (addr, port)).await.expect("cannot send message to socket");
                       },
                       BroadcastMsg::Cancel => {
@@ -138,13 +138,15 @@ pub async fn cancel_broadcast(state: tauri::State<'_, BroadcastState>) -> Result
 }
 
 #[tauri::command]
-pub async fn scan(data: String, state: tauri::State<'_, BroadcastState>) -> Result<(), String> {
+pub async fn scan(state: tauri::State<'_, BroadcastState>) -> Result<(), String> {
     let tx = state.tx.lock().await;
     match tx.as_ref() {
-        Some(sender) => sender
-            .send(BroadcastMsg::SendData(data))
+        Some(sender) =>  {
+            let pkt = Packet::new(0, 0, 0, ServerCommand::Scan(Scan::default()));
+            sender
+            .send(BroadcastMsg::SendData(pkt))
             .await
-            .map_err(|e| e.to_string()),
+            .map_err(|e| e.to_string())},
         None => Ok(()),
     }
 }

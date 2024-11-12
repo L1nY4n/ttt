@@ -7,7 +7,8 @@ pub enum Error {
     SerialPort(#[from] serialport::Error),
     #[error("File is not valid utf8: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
-    
+    #[error("InvalidCommand")]
+    InvalidCommand,
     #[error("SendError: {0}")]
     SendError(String),
     #[error("Unknown")]

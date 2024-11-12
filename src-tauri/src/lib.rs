@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 mod cmds;
+mod protocol;
 pub mod error;
 
 
