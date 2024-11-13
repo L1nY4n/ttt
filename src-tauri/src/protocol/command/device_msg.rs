@@ -1,15 +1,18 @@
 use std::net::Ipv4Addr;
 
 use bytes::{BufMut, BytesMut};
+use serde::{Deserialize, Serialize};
 
 use crate::protocol::bytes_serializable::BytesSerializable;
 
 
+#[derive(Debug,Serialize,Deserialize)]
 pub struct DeviceInfo {
     pub ip: Ipv4Addr,
     pub gateway: Ipv4Addr,
     pub mask: Ipv4Addr,
 }
+
 
 impl BytesSerializable for DeviceInfo {
     fn to_bytes(&self) -> bytes::Bytes {

@@ -1,15 +1,23 @@
 use std::{
+    io::Read,
     net::{IpAddr, Ipv4Addr, SocketAddrV4},
     str::FromStr,
 };
 
+use bytes::{Bytes, BytesMut};
 use chrono::{Local, NaiveDateTime};
 use local_ip_address::list_afinet_netifas;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager};
 use tokio::sync::{mpsc, Mutex};
 
-use crate::{protocol::{command::{broadcast_scan::Scan, ServerCommand}, Packet}, SystmEvent};
+use crate::{
+    protocol::{
+        command::{broadcast_scan::Scan, ServerCommand},
+        Packet, PacketCommand,
+    },
+    SystmEvent,
+};
 
 #[derive(Default, Serialize, Deserialize, Clone)]
 struct Device {
@@ -65,10 +73,10 @@ pub async fn create_broadcast(
 
     let mut mtx = state.tx.lock().await;
     *mtx = Some(manager_tx);
-
+    let mut buf = [0; 256];
     tauri::async_runtime::spawn(async move {
         let udp = tokio::net::UdpSocket::from_std(socket.into()).unwrap();
-        let mut buf = [0; 164];
+
         loop {
             tokio::select! {
               msg = manager_rx.recv() =>{
@@ -88,29 +96,79 @@ pub async fn create_broadcast(
              }
             recv_res = udp.recv_from(&mut buf) => {
                                  let (count, remote_addr) = recv_res.expect("cannot receive from socket");
-                                 if let Ok(parsed) = core::str::from_utf8(&buf[..count])  {
-                               let  remote_ip =    remote_addr.ip() ;
-                                let if_name =     interfaces.iter().find_map(|(name,addr)|{
+                                 let  remote_ip =    remote_addr.ip() ;
 
-                                            if  *addr == remote_ip {
-                                                Some(name)
-                                            }else{
-                                                None
+                                let   data  = Bytes::copy_from_slice(&buf[..count]);
+
+                              match     Packet::from_bytes(data) {
+                                  Ok(pkt) =>{
+                                    println!("{:#?}",pkt);
+                                    match  pkt.command{
+                                   PacketCommand::ServerCommand(server_command) =>{
+                                        match server_command{
+                                            ServerCommand::Scan(_scan) => {
+                                                let if_name = interfaces.iter().find_map(|(name,addr)|{
+                                                    if  *addr == remote_ip {
+                                                        Some(name)
+                                                    }else{
+                                                        None
+                                                    }
+                                                  });
+                                                  let name = match if_name {
+                                                      Some(name) => name.to_owned(),
+                                                      None =>remote_ip.to_string(),
+                                                  };
+                                                  let dev = Device{
+                                                     name: name,
+                                                      ip: remote_ip.to_string(),
+                                                      text: "".to_string(),
+                                                      date:  Local::now().naive_local(),
+                                                      ..Default::default()
+                                                  };
+                                                let _ =  app_clone.emit("boracast_msg", dev);
+
                                             }
-                                    });
-                                     let name = match if_name {
-                                         Some(name) => name.to_owned(),
-                                         None =>remote_ip.to_string(),
-                                     };
-                                     let dev = Device{
-                                        name: name,
-                                         ip: remote_ip.to_string(),
-                                         text: parsed.to_string(),
-                                         date:  Local::now().naive_local(),
-                                         ..Default::default()
-                                     };
-                                   let _ =  app_clone.emit("boracast_msg", dev);
-                                 }
+
+                                        }
+
+                                        },
+                                   PacketCommand::DeviceCommand(device_command) =>{
+
+                                        },
+                                    }
+
+
+                                  },
+                                  Err(err) =>{
+                                    println!("{:#?}",err);
+                                  },
+                              }
+
+
+                            //      if let Ok(parsed) = core::str::from_utf8(&buf[..count])  {
+                            //    let  remote_ip =    remote_addr.ip() ;
+                            //     let if_name =     interfaces.iter().find_map(|(name,addr)|{
+
+                            //                 if  *addr == remote_ip {
+                            //                     Some(name)
+                            //                 }else{
+                            //                     None
+                            //                 }
+                            //         });
+                            //          let name = match if_name {
+                            //              Some(name) => name.to_owned(),
+                            //              None =>remote_ip.to_string(),
+                            //          };
+                            //          let dev = Device{
+                            //             name: name,
+                            //              ip: remote_ip.to_string(),
+                            //              text: parsed.to_string(),
+                            //              date:  Local::now().naive_local(),
+                            //              ..Default::default()
+                            //          };
+                            //        let _ =  app_clone.emit("boracast_msg", dev);
+                            //      }else{
+                            //      }
                              }
                          }
         }
@@ -141,12 +199,13 @@ pub async fn cancel_broadcast(state: tauri::State<'_, BroadcastState>) -> Result
 pub async fn scan(state: tauri::State<'_, BroadcastState>) -> Result<(), String> {
     let tx = state.tx.lock().await;
     match tx.as_ref() {
-        Some(sender) =>  {
-            let pkt = Packet::new(0, 0, 0, ServerCommand::Scan(Scan::default()));
+        Some(sender) => {
+            let pkt = Packet::new_server_cmd(0, 0, 0, ServerCommand::Scan(Scan::default()));
             sender
-            .send(BroadcastMsg::SendData(pkt))
-            .await
-            .map_err(|e| e.to_string())},
+                .send(BroadcastMsg::SendData(pkt))
+                .await
+                .map_err(|e| e.to_string())
+        }
         None => Ok(()),
     }
 }

@@ -9,6 +9,8 @@ pub enum Error {
     Utf8(#[from] std::string::FromUtf8Error),
     #[error("InvalidCommand")]
     InvalidCommand,
+    #[error("CrcError")]
+    CrcError,
     #[error("SendError: {0}")]
     SendError(String),
     #[error("Unknown")]
