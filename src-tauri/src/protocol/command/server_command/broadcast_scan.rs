@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::protocol::{bytes_serializable::BytesSerializable, Command};
 
-#[derive(Default,Debug,Serialize,Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Scan {}
 
 impl Command for Scan {

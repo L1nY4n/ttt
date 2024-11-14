@@ -18,7 +18,7 @@ import { Nav } from "./nav";
 
 import { Label } from "./components/ui/label";
 
-import Broadcast from "./components/pages/broadcast";
+import Broadcast from "./components/pages/broadcast/index.tsx";
 import SerialPort from "./components/pages/serialport";
 import BluetoothView from "@/components/pages/bluetooth/index";
 
@@ -128,7 +128,7 @@ function App() {
               variant: "ghost",
             },
             {
-              title: "MQTT-BLE",
+              title: "mqtt ble",
               path: "/bluetooth",
               label: "",
               icon: BluetoothIcon,

@@ -1,16 +1,14 @@
 use serde::{Deserialize, Serialize};
 mod cmds;
-mod protocol;
 pub mod error;
+mod protocol;
 
-
-#[derive(Serialize,Deserialize,Clone)]
-pub struct SystmEvent{
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SystmEvent {
     pub title: String,
     pub description: String,
-    pub datetime : chrono::NaiveDateTime
+    pub datetime: chrono::NaiveDateTime,
 }
-
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -20,20 +18,20 @@ pub fn run() {
         .manage(cmds::mqtt::State::new())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
+            cmds::broadcast::check_broadcast,
             cmds::broadcast::create_broadcast,
             cmds::broadcast::cancel_broadcast,
             cmds::broadcast::scan,
-
+            cmds::broadcast::set_network,
             cmds::serialport::available_ports,
             cmds::serialport::open_port,
-            cmds::serialport::close_port,  
+            cmds::serialport::close_port,
             cmds::serialport::write_port,
-
             cmds::mqtt::mqtt_create_client,
             cmds::mqtt::mqtt_close_client,
             cmds::mqtt::mqtt_publish,
             cmds::mqtt::mqtt_state
-            ])
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

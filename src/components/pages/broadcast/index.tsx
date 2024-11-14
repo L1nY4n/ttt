@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Device, DeviceList } from "@/dev-list";
-import { ListX, PlugZap, Send, Unplug } from "lucide-react";
+import { Device, DeviceList } from "@/components/pages/broadcast/dev-list";
+import { ListX, PlugZap, Radar, Unplug } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
 
 function Broadcast() {
-  const [data, setData] = useState("");
+  const [data, _setData] = useState("");
   const [ip, setIp] = useState("239.255.255.250");
   const [port, setPort] = useState(31900);
   const [connected, setConnected] = useState(false);
@@ -23,6 +23,11 @@ function Broadcast() {
   useEffect(() => {
     if (!avoidExtraCall) {
       avoidExtraCall = true;
+
+      invoke("check_broadcast").then((res) => {
+        setConnected(res as boolean);
+      });
+
       listen("boracast_msg", ({ payload }) => {
         const dev = payload as Device;
         console.log(dev);
@@ -40,7 +45,7 @@ function Broadcast() {
     }
   }, []);
   async function scan() {
-    await invoke("scan", { data: data });
+    await invoke("scan");
   }
 
   function createBroadcast() {
@@ -72,36 +77,41 @@ function Broadcast() {
 
   return (
     <Tabs defaultValue="all">
-      <div className="flex items-center px-4 py-2">
-        <h1 className="text-xl font-bold">Scan</h1>
-        <TabsList className="ml-auto">
-          <TabsTrigger value="all" className="text-zinc-600 dark:text-zinc-200">
-            All
-          </TabsTrigger>
-          <TabsTrigger value="eps" className="text-zinc-600 dark:text-zinc-200">
-            ESP
-          </TabsTrigger>
-          <TabsTrigger
-            value="stm32"
-            className="text-zinc-600 dark:text-zinc-200"
-          >
-            STM32
-          </TabsTrigger>
-        </TabsList>
-      </div>
-      <Separator />
-      <div className="bg-background/95 p-2 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex items-center justify-between px-4 py-2">
+        <div>
+          <TabsList className="h-8 ml-auto">
+            <TabsTrigger
+              value="all"
+              className="text-zinc-600 dark:text-zinc-200"
+            >
+              All
+            </TabsTrigger>
+            <TabsTrigger
+              value="eps"
+              className="text-zinc-600 dark:text-zinc-200"
+            >
+              DCC
+            </TabsTrigger>
+            <TabsTrigger
+              value="stm32"
+              className="text-zinc-600 dark:text-zinc-200"
+            >
+              BLE GW
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
         <form>
           <div className="flex items-center w-full max-w-sm space-x-2">
             <Input
-              className="w-40"
+              className="w-32 h-8"
               type="text"
-              defaultValue={"192.168.101.112"}
+              defaultValue={ip}
               placeholder="Ip"
               onChange={(e) => setIp(e.currentTarget.value)}
             />
             <Input
-              className="w-24"
+              className="w-24 h-8"
               type="number"
               defaultValue={31900}
               placeholder="port"
@@ -109,6 +119,7 @@ function Broadcast() {
             />
             {connected ? (
               <Button
+                className="h-8"
                 variant="secondary"
                 size="icon"
                 onClick={(e) => {
@@ -116,7 +127,7 @@ function Broadcast() {
                   cancelBroadcast();
                 }}
               >
-                <Unplug color="red" className="w-10 h-6" />
+                <Unplug color="red" className="w-4 h-4 " />
               </Button>
             ) : (
               <Button
@@ -127,39 +138,41 @@ function Broadcast() {
                   createBroadcast();
                 }}
               >
-                <PlugZap color="green" className="w-10 h-6" />
+                <PlugZap color="green" className="w-10 h-5" />
               </Button>
             )}
           </div>
         </form>
+      </div>
+      <Separator />
+      <div className="bg-background/95 p-2 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         {connected && (
-          <div className="flex items-end gap-2 py-1 ">
-            <Textarea
-              rows={1}
-              value={data}
-              onChange={(e) => setData(e.currentTarget.value)}
-            />
-
-            <Button
-              onClick={(e) => {
-                e.preventDefault();
-                scan();
-              }}
-              variant="outline"
-            >
-              <Send className="w-4 h-4 mr-2 animate-pulse" />
-              Send
-            </Button>
-            <Button
-              size="icon"
-              onClick={(e) => {
-                e.preventDefault();
-                setMsgList([]);
-              }}
-              variant="destructive"
-            >
-              <ListX className="w-10 h-6" />
-            </Button>
+          <div className="flex items-end justify-between ">
+            <div>
+              <Button
+                className="h-8 p-2 "
+                onClick={(e) => {
+                  e.preventDefault();
+                  scan();
+                }}
+                variant="outline"
+              >
+                <Radar className="w-5 h-5 m-0 hover:animate-spin hover:stroke-orange-500" />
+              </Button>
+            </div>
+            <div>
+              <Button
+                className="h-8 px-0"
+                size="icon"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMsgList([]);
+                }}
+                variant="outline"
+              >
+                <ListX color="red" className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         )}
       </div>

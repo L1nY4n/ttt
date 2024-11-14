@@ -5,21 +5,35 @@ use serde::{Deserialize, Serialize};
 
 use crate::protocol::bytes_serializable::BytesSerializable;
 
-
-#[derive(Debug,Serialize,Deserialize)]
-pub struct DeviceInfo {
-    pub ip: Ipv4Addr,
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Network {
+    pub ipaddr: Ipv4Addr,
     pub gateway: Ipv4Addr,
-    pub mask: Ipv4Addr,
+    pub netmask: Ipv4Addr,
 }
 
+impl Network {
+    pub fn new(ip: Ipv4Addr, gateway: Ipv4Addr, mask: Ipv4Addr) -> Self {
+        Network { ipaddr: ip, gateway, netmask: mask }
+    }
+}
 
-impl BytesSerializable for DeviceInfo {
+impl Default for Network {
+    fn default() -> Self {
+        Network {
+            ipaddr: Ipv4Addr::new(0, 0, 0, 0),
+            gateway: Ipv4Addr::new(0, 0, 0, 0),
+            netmask: Ipv4Addr::new(0, 0, 0, 0),
+        }
+    }
+}
+
+impl BytesSerializable for Network {
     fn to_bytes(&self) -> bytes::Bytes {
         let mut bytes = BytesMut::new();
-        bytes.put_u32(self.ip.to_bits());
+        bytes.put_u32(self.ipaddr.to_bits());
         bytes.put_u32(self.gateway.to_bits());
-        bytes.put_u32(self.mask.to_bits());
+        bytes.put_u32(self.netmask.to_bits());
         bytes.freeze()
     }
 
@@ -35,10 +49,10 @@ impl BytesSerializable for DeviceInfo {
         let gw = u32::from_be_bytes(bytes[4..8].try_into().unwrap());
         let mask = u32::from_be_bytes(bytes[8..12].try_into().unwrap());
 
-        Ok(DeviceInfo {
-            ip: ip.into(),
+        Ok(Network {
+            ipaddr: ip.into(),
             gateway: gw.into(),
-            mask: mask.into(),
+            netmask: mask.into(),
         })
     }
 }

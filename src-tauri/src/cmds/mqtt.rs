@@ -42,7 +42,7 @@ enum MqttClientMsg {
 
 #[derive(Serialize, Clone)]
 pub struct MqttState {
-    connected: bool
+    connected: bool,
 }
 
 pub struct State {
@@ -56,7 +56,6 @@ impl State {
             tx: None,
         })
     }
-    
 }
 
 #[tauri::command]
@@ -175,7 +174,7 @@ pub async fn mqtt_publish(
     playload: String,
     qos: u8,
     retain: bool,
-    state: tauri::State<'_, Mutex<State>>
+    state: tauri::State<'_, Mutex<State>>,
 ) -> Result<(), String> {
     let qos_ = rumqttc::qos(qos).unwrap_or(QoS::AtMostOnce);
     let data = MqttPublishData {
@@ -194,16 +193,11 @@ pub async fn mqtt_publish(
     }
 }
 
-
 #[tauri::command]
-pub async fn mqtt_state(
-    state: tauri::State<'_, Mutex<State>>
-) -> Result<MqttState, String> {
-  
+pub async fn mqtt_state(state: tauri::State<'_, Mutex<State>>) -> Result<MqttState, String> {
     let s = state.lock().await;
 
-    Ok(MqttState{
-        connected: s.connected
+    Ok(MqttState {
+        connected: s.connected,
     })
 }
-
