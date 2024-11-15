@@ -1,11 +1,11 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuGroup,
+//   DropdownMenuItem,
+//   DropdownMenuShortcut,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { differenceInMinutes } from "date-fns/differenceInMinutes";
 import { invoke } from "@tauri-apps/api/core";
@@ -13,14 +13,11 @@ import { zhCN } from "date-fns/locale";
 import {
   AlertCircle,
   CheckCircle2,
-  Construction,
-  Lightbulb,
-  LightbulbOff,
-  PersonStanding,
+
   Settings,
   Share2,
   TrainFront,
-  Zap,
+
 } from "lucide-react";
 
 import {
@@ -44,12 +41,12 @@ type DeviceViewProps = {
   onModeChange: (mode: number) => void;
 };
 
-function DeviceView({ info, onStatusChange, onModeChange }: DeviceViewProps) {
+function DeviceView({ info }: DeviceViewProps) {
 
   const StatusIcon = <TrainFront className="w-4 h-4 text-green-500" />;;
 
   const modeIcon = null;
-
+  const [dhcp, setDhcp] = useState(info.network.dhcp);
   const [ipaddr, setIpAddr] = useState(info.network.ipaddr);
   const [gateway, setGateway] = useState(info.network.gateway);
   const [netmask, setNetmask] = useState(info.network.netmask);

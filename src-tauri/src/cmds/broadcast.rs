@@ -209,9 +209,11 @@ pub async fn scan(state: tauri::State<'_, BroadcastState>) -> Result<(), String>
         Some(sender) => {
             let info = DeviceInfo {
                 network: Network::new(
+                    0,
                     "192.168.0.4".parse().unwrap(),
                     "192.168.0.1".parse().unwrap(),
                     "255.255.255.0".parse().unwrap(),
+                    "8.8.8.8".parse().unwrap(),
                 ),
             };
 

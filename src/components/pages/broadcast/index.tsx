@@ -12,7 +12,7 @@ import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
 
 function Broadcast() {
-  const [data, _setData] = useState("");
+
   const [ip, setIp] = useState("239.255.255.250");
   const [port, setPort] = useState(31900);
   const [connected, setConnected] = useState(false);

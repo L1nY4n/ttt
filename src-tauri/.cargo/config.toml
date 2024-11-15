@@ -1,4 +1,7 @@
 [build]
-target = "aarch64-apple-darwin"
+target = "aarch64-apple-darwin" 
+[target.aarch64-apple-darwin]
+rustflags = ["-Clink-arg=-fapple-link-rtlib"]
 
-[target]
+[target.x86_64-apple-darwin]
+rustflags = ["-Clink-arg=-fapple-link-rtlib"]
