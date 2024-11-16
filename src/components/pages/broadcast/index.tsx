@@ -77,9 +77,9 @@ function Broadcast() {
 
   return (
     <Tabs defaultValue="all">
-      <div className="flex items-center justify-between px-4 py-2">
-        <div>
-          <TabsList className="h-8 ml-auto">
+      <div className="p-1 sm:items-center sm:justify-between sm:flex">
+        <div className="md:w-full">
+          <TabsList className="ml-auto h-7 max-sm:mb-1">
             <TabsTrigger
               value="all"
               className="text-zinc-600 dark:text-zinc-200"

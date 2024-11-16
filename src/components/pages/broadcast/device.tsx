@@ -34,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 type DeviceViewProps = {
   info: Device;
@@ -50,17 +51,19 @@ function DeviceView({ info }: DeviceViewProps) {
   const [ipaddr, setIpAddr] = useState(info.network.ipaddr);
   const [gateway, setGateway] = useState(info.network.gateway);
   const [netmask, setNetmask] = useState(info.network.netmask);
+  const [dns, setDns] = useState(info.network.dns);
   const [errors, setErrors] = useState({
     ipaddr: "",
     gateway: "",
     netmask: "",
+    dns: "",
   });
 
   const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
 
   const validateInput = (
     value: string,
-    field: "ipaddr" | "gateway" | "netmask"
+    field: "ipaddr" | "gateway" | "netmask" | "dns"
   ) => {
     if (!value) {
       setErrors((prev) => ({ ...prev, [field]: "This field is required" }));
@@ -93,14 +96,14 @@ function DeviceView({ info }: DeviceViewProps) {
 
     if (isIpValid && isGatewayValid && isNetmaskValid) {
       console.log("Form submitted:", { ipaddr, gateway, netmask });
-      invoke("set_network", {mac: info.mac, network: {ipaddr, gateway, netmask}}).then(() => {
+      invoke("set_network", {mac: info.mac, network: {dhcp,ipaddr, gateway, netmask, dns}}).then(() => {
         console.log("设置成功");
       })
     }
   };
 
   return (
-    <div className="relative p-2 text-sm text-left transition-all border rounded-lg w-60 hover:bg-accent">
+    <div className="relative w-64 p-2 text-sm text-left transition-all border rounded-lg hover:bg-accent">
       <div className="flex items-center gap-2 ">
         <Share2
           className={cn(
@@ -125,7 +128,7 @@ function DeviceView({ info }: DeviceViewProps) {
             <Settings className="w-4 h-4 text-slate-500" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="flex flex-col items-start gap-2 p-3 text-sm text-left transition-all border rounded-lg hover:bg-accent">
+        <PopoverContent className="flex flex-col items-start gap-2 p-3 text-sm text-left transition-all border rounded-lg hover:bg-accent max-w-[90%]">
           <div className="flex flex-col w-full gap-1">
             <div className="flex items-center">
               <div className="flex items-center gap-2">
@@ -176,6 +179,17 @@ function DeviceView({ info }: DeviceViewProps) {
           </div>
 
           <form onSubmit={handleSubmit} className="rounded ">
+
+          <div className="flex items-center gap-2 mb-1">
+              <Label htmlFor="dhcp">dhcp</Label>
+              <Switch
+                id="dhcp"
+                checked={dhcp === 1}
+                onCheckedChange={(c) =>  setDhcp(c? 1: 0)}
+
+              />
+
+            </div>
             <div className="mb-1">
               <Label htmlFor="ipaddr">IP Address</Label>
               <Input
@@ -214,7 +228,7 @@ function DeviceView({ info }: DeviceViewProps) {
               )}
             </div>
 
-            <div className="mb-4">
+            <div className="mb-1">
               <Label htmlFor="netmask">Netmask</Label>
               <Input
                 className="h-8"
@@ -229,6 +243,25 @@ function DeviceView({ info }: DeviceViewProps) {
                 <p className="flex items-center gap-1 text-sm text-destructive">
                   <AlertCircle className="w-4 h-4" />
                   {errors.netmask}
+                </p>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <Label htmlFor="dns">DNS</Label>
+              <Input
+                className="h-8"
+                id="dns"
+                type="text"
+                placeholder="xxx.xxx.xxx.xxx"
+                value={dns}
+                onChange={(e) => setDns(e.target.value)}
+                onBlur={() => validateInput(dns, "dns")}
+              />
+              {errors.dns && (
+                <p className="flex items-center gap-1 text-sm text-destructive">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.dns}
                 </p>
               )}
             </div>
