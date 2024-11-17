@@ -12,9 +12,8 @@ pub struct SystmEvent {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .manage(cmds::broadcast::BroadcastState::new())
-        .manage(cmds::serialport::State::new())
         .manage(cmds::mqtt::State::new())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
@@ -23,15 +22,35 @@ pub fn run() {
             cmds::broadcast::cancel_broadcast,
             cmds::broadcast::scan,
             cmds::broadcast::set_network,
-            cmds::serialport::available_ports,
-            cmds::serialport::open_port,
-            cmds::serialport::close_port,
-            cmds::serialport::write_port,
             cmds::mqtt::mqtt_create_client,
             cmds::mqtt::mqtt_close_client,
             cmds::mqtt::mqtt_publish,
             cmds::mqtt::mqtt_state
-        ])
+        ]);
+
+    #[cfg(not(target_os = "ios"))]
+    {
+        builder = builder
+            .manage(cmds::serialport::State::new())
+            .invoke_handler(tauri::generate_handler![
+                cmds::broadcast::check_broadcast,
+                cmds::broadcast::create_broadcast,
+                cmds::broadcast::cancel_broadcast,
+                cmds::broadcast::scan,
+                cmds::broadcast::set_network,
+                cmds::mqtt::mqtt_create_client,
+                cmds::mqtt::mqtt_close_client,
+                cmds::mqtt::mqtt_publish,
+                cmds::mqtt::mqtt_state,
+                cmds::serialport::write_port,
+                cmds::serialport::available_ports,
+                cmds::serialport::open_port,
+                cmds::serialport::close_port,
+                cmds::serialport::write_port
+            ]);
+    }
+
+    builder
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
