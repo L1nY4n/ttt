@@ -10,6 +10,7 @@ export type Device = {
   text: string;
   labels: string[];
   network: Network;
+  tcp_server:  TcpServer | null
 };
 
 export type Network = {
@@ -19,6 +20,11 @@ export type Network = {
   gateway: string;
   dns: string;
 };
+
+export type TcpServer = {
+  ip: string;
+  port: number;
+}
 
 interface DeviceListProps {
   items: Device[];

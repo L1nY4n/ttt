@@ -8,12 +8,12 @@ use chrono::{Local, NaiveDateTime};
 use local_ip_address::list_afinet_netifas;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager};
-use tokio::sync::{mpsc, Mutex};
+use tokio::{net::tcp, sync::{mpsc, Mutex}};
 
 use crate::{
     protocol::{
         command::{
-            base::Network, device_command::device_msg::DeviceInfo, server_command::network_set::NetworkSet, DeviceCommand, Scan, ServerCommand
+            base::{network::IpWithPort, Network}, device_command::device_msg::DeviceInfo, server_command::{network_set::NetworkSet, reboot::Reboot, tcp_server_set::TcpServerSet}, DeviceCommand, Scan, ServerCommand
         },
         Packet, PacketCommand,
     },
@@ -242,7 +242,7 @@ pub async fn scan(state: tauri::State<'_, BroadcastState>) -> Result<(), String>
 
 
 #[tauri::command]
-pub async fn set_network(mac: u64, network: Network,state: tauri::State<'_, BroadcastState>) -> Result<bool, String> {
+pub async fn network_set(mac: u64, network: Network,state: tauri::State<'_, BroadcastState>) -> Result<bool, String> {
     let tx = state.tx.lock().await;
     match tx.as_ref() {
         Some(sender) => {
@@ -267,3 +267,56 @@ pub async fn set_network(mac: u64, network: Network,state: tauri::State<'_, Broa
         None => Ok(false),
     }
 }
+
+
+#[tauri::command]
+pub async fn tcp_server_set(mac: u64, tcp_server: IpWithPort,state: tauri::State<'_, BroadcastState>) -> Result<bool, String> {
+    let tx = state.tx.lock().await;
+    match tx.as_ref() {
+        Some(sender) => {
+            let tcp_server_set = TcpServerSet { ip_and_port: tcp_server };  
+
+            let pkt = Packet::new_server_cmd(
+                0,
+                mac,
+                0,
+                ServerCommand::TcpServerSet(tcp_server_set),
+            );
+            sender
+                .send(BroadcastMsg::SendData(pkt))
+                .await
+                .map_err(|e| e.to_string())?;
+
+    
+            Ok(true)
+        }
+        None => Ok(false),
+    }
+}
+
+
+#[tauri::command]
+pub async fn reboot(mac: u64,state: tauri::State<'_, BroadcastState>) -> Result<bool, String> {
+    let tx = state.tx.lock().await;
+    match tx.as_ref() {
+        Some(sender) => {
+        
+
+            let pkt = Packet::new_server_cmd(
+                0,
+                mac,
+                0,
+                ServerCommand::Reboot(Reboot {}),
+            );
+            sender
+                .send(BroadcastMsg::SendData(pkt))
+                .await
+                .map_err(|e| e.to_string())?;
+
+    
+            Ok(true)
+        }
+        None => Ok(false),
+    }
+}
+

@@ -4,19 +4,25 @@ use broadcast_scan::Scan;
 use bytes::{BufMut, Bytes, BytesMut};
 
 use network_set::NetworkSet;
+use reboot::Reboot;
 use serde::{Deserialize, Serialize};
+use tcp_server_set::TcpServerSet;
 
 use crate::protocol::{bytes_serializable::BytesSerializable, Command};
 
-use super::{NETWORK_GET, NETWORK_SET, SCAN};
+use super::{ NETWORK_SET, REBOOT, SCAN, TCP_SERVER_SET};
 
 pub mod broadcast_scan;
 pub mod network_set;
+pub mod tcp_server_set;
+pub mod reboot;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ServerCommand {
     Scan(Scan),
     NetworkSet(NetworkSet),
+    TcpServerSet(TcpServerSet),
+    Reboot(Reboot),
 }
 
 impl Display for ServerCommand {
@@ -30,6 +36,8 @@ impl Command for ServerCommand {
         match self {
             ServerCommand::Scan(scan) => scan.code(),
             ServerCommand::NetworkSet(network_set) => network_set.code(),
+            ServerCommand::TcpServerSet(tcp_server_set) => tcp_server_set.code(),
+            ServerCommand::Reboot(reboot) => reboot.code(),
         }
     }
 }
@@ -38,6 +46,8 @@ impl BytesSerializable for ServerCommand {
         let cmd_bytes = match self {
             ServerCommand::Scan(scan) => scan.to_bytes(),
             ServerCommand::NetworkSet(network_set) => network_set.to_bytes(),
+            ServerCommand::TcpServerSet(tcp_server_set) => tcp_server_set.to_bytes(),
+            ServerCommand::Reboot(reboot) => reboot.to_bytes(),
         };
         let cmd_len = cmd_bytes.len();
         let mut bytes = BytesMut::with_capacity(cmd_len + 4);
@@ -61,6 +71,8 @@ impl BytesSerializable for ServerCommand {
         match code {
             SCAN => Ok(ServerCommand::Scan(Scan::from_bytes(cmd_bytes)?)),
             NETWORK_SET =>Ok(ServerCommand::NetworkSet(NetworkSet::from_bytes(cmd_bytes)?)),
+            TCP_SERVER_SET => Ok(ServerCommand::TcpServerSet(TcpServerSet::from_bytes(cmd_bytes)?)),
+            REBOOT => Ok(ServerCommand::Reboot(Reboot::from_bytes(cmd_bytes)?)),
             _ => Err(crate::error::Error::NotImplement),
         }
     }

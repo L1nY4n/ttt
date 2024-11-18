@@ -65,3 +65,41 @@ impl BytesSerializable for Network {
         })
     }
 }
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IpWithPort {
+    pub ip: Ipv4Addr,
+    port: u16,
+}
+
+impl IpWithPort {
+    pub fn new(ip: Ipv4Addr, port: u16) -> Self {
+        IpWithPort { ip, port }
+    }
+    
+}
+
+impl BytesSerializable for IpWithPort {
+    fn to_bytes(&self) -> bytes::Bytes {
+        let mut bytes = BytesMut::with_capacity(6);
+        bytes.put_u32(self.ip.to_bits());
+        bytes.put_u16(self.port);
+       bytes. freeze()
+   }
+
+   fn from_bytes(bytes: bytes::Bytes) -> Result<Self, crate::error::Error>
+   where
+       Self: Sized,
+   {
+       if bytes.len() < 6 {
+           return Err(crate::error::Error::InvalidCommand);
+       }
+       let ip = u32::from_be_bytes(bytes[0..4].try_into().unwrap());
+       let port = u16::from_be_bytes(bytes[4..6].try_into().unwrap());
+       Ok(IpWithPort {
+           ip: ip.into(),
+           port,
+       })
+   }
+}

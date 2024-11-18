@@ -21,7 +21,10 @@ pub fn run() {
             cmds::broadcast::create_broadcast,
             cmds::broadcast::cancel_broadcast,
             cmds::broadcast::scan,
-            cmds::broadcast::set_network,
+            cmds::broadcast::network_set,
+            cmds::broadcast::tcp_server_set,
+            cmds::broadcast::reboot,
+
             cmds::mqtt::mqtt_create_client,
             cmds::mqtt::mqtt_close_client,
             cmds::mqtt::mqtt_publish,
@@ -37,7 +40,10 @@ pub fn run() {
                 cmds::broadcast::create_broadcast,
                 cmds::broadcast::cancel_broadcast,
                 cmds::broadcast::scan,
-                cmds::broadcast::set_network,
+                cmds::broadcast::network_set,
+                cmds::broadcast::tcp_server_set,
+                cmds::broadcast::reboot,
+    
                 cmds::mqtt::mqtt_create_client,
                 cmds::mqtt::mqtt_close_client,
                 cmds::mqtt::mqtt_publish,
