@@ -6,7 +6,6 @@ import { Device, DeviceList } from "@/components/pages/broadcast/dev-list";
 import { ListX, PlugZap, Radar, Unplug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
@@ -107,6 +106,7 @@ function Broadcast() {
               className="w-32 h-8"
               type="text"
               defaultValue={ip}
+              disabled={connected}
               placeholder="Ip"
               onChange={(e) => setIp(e.currentTarget.value)}
             />
@@ -114,6 +114,7 @@ function Broadcast() {
               className="w-24 h-8"
               type="number"
               defaultValue={31900}
+              disabled={connected}
               placeholder="port"
               onChange={(e) => setPort(parseInt(e.currentTarget.value))}
             />

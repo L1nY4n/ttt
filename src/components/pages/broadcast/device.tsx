@@ -1,11 +1,3 @@
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuGroup,
-//   DropdownMenuItem,
-//   DropdownMenuShortcut,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { differenceInMinutes } from "date-fns/differenceInMinutes";
 import { invoke } from "@tauri-apps/api/core";
@@ -181,15 +173,17 @@ function DeviceView({ info }: DeviceViewProps) {
       invoke("tcp_server_set", {
         mac: info.mac,
         tcpServer: { ip: tcpserver_ip, port: tcpserver_port },
-      }).then(() => {
-        toast.success("Done!", {
-          description: "Tcp server Set " + "ip :" + info.ip,
-        });
-      }).catch((error) => {
-        toast.error("Failed", {
-          description: error,
-        });
       })
+        .then(() => {
+          toast.success("Done!", {
+            description: "Tcp server Set " + "ip :" + info.ip,
+          });
+        })
+        .catch((error) => {
+          toast.error("Failed", {
+            description: error,
+          });
+        });
     }
   };
 
@@ -227,17 +221,17 @@ function DeviceView({ info }: DeviceViewProps) {
             <Settings className="w-4 h-4 text-slate-500" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="flex flex-col items-start gap-2 p-3 text-sm text-left transition-all border rounded-lg hover:bg-accent max-w-[90%]">
+        <PopoverContent className="relative p-3 text-sm text-left transition-all border rounded-lg hover:bg-accent max-w-[90%]">
           <Tabs defaultValue="ctr">
-            <TabsList className="grid w-full grid-cols-3 gap-1">
+            <TabsList className="gap-1 ">
               <TabsTrigger value="ctr">Ctr</TabsTrigger>
               <TabsTrigger value="net">Net</TabsTrigger>
               <TabsTrigger value="sev">Sev</TabsTrigger>
             </TabsList>
             <TabsContent value="ctr">
-              <Card className="">
+              <Card className="w-full">
                 <CardContent className="p-2">
-                  <div className="w-100%">
+                  <div className="w-max">
                     <Button variant="outline" onClick={reboot} className="">
                       <Power color="red" className="w-4 h-4 mr-2" /> Reboot
                     </Button>
@@ -362,7 +356,10 @@ function DeviceView({ info }: DeviceViewProps) {
                   <CardDescription>Setting for tcp server</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <form onSubmit={handleTcpServerSetSubmit} className="rounded ">
+                  <form
+                    onSubmit={handleTcpServerSetSubmit}
+                    className="rounded "
+                  >
                     <div className="mb-1">
                       <Label htmlFor="ipaddr">IP Address</Label>
                       <Input

@@ -1,7 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-
 import DeviceView from "./device";
-
 export type Device = {
   ip: string;
   mac: BigInteger;
@@ -10,7 +8,7 @@ export type Device = {
   text: string;
   labels: string[];
   network: Network;
-  tcp_server:  TcpServer | null
+  tcp_server: TcpServer | null;
 };
 
 export type Network = {
@@ -24,7 +22,7 @@ export type Network = {
 export type TcpServer = {
   ip: string;
   port: number;
-}
+};
 
 interface DeviceListProps {
   items: Device[];
