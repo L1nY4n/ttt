@@ -196,7 +196,6 @@ pub async fn mqtt_publish(
 #[tauri::command]
 pub async fn mqtt_state(state: tauri::State<'_, Mutex<State>>) -> Result<MqttState, String> {
     let s = state.lock().await;
-
     Ok(MqttState {
         connected: s.connected,
     })

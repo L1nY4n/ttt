@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { listen } from "@tauri-apps/api/event";
 import "./globals.css";
-import { RadarIcon, PocketKnife, Settings, BluetoothIcon,Usb } from "lucide-react";
+import { RadarIcon, PocketKnife, Settings, BluetoothIcon,Usb, QrCode } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Route, Routes } from "react-router-dom";
@@ -21,6 +21,7 @@ import { Label } from "./components/ui/label";
 import Broadcast from "./components/pages/broadcast/index.tsx";
 import SerialPort from "./components/pages/serialport";
 import BluetoothView from "@/components/pages/bluetooth/index";
+import QRAC from "./components/pages/qr_ac/index.tsx";
 
 type SystemEvent = {
   title: string;
@@ -29,7 +30,7 @@ type SystemEvent = {
 };
 
 function App() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   //const [windowsSize,setWindowsSize] = useState(800);
   const  [maxSize,setMaxSize] = useState(30);
   const [collapsedSize, setCollapsedSize] = useState(5);
@@ -135,9 +136,17 @@ function App() {
               variant: "ghost",
               animate: "animate-bounce"
             },
+            {
+              title: "QR ac",
+              path: "/qrac",
+              label: "",
+              icon: QrCode,
+              variant: "ghost",
+              animate: "animate-plus"
+            },
           ]}
         />
-        <Separator />
+        <Separator  />
         <Nav
           isCollapsed={isCollapsed}
           links={[
@@ -157,6 +166,7 @@ function App() {
           <Route path="/" element={<Broadcast />} />
           <Route path="/serialport" element={<SerialPort  />} />
           <Route path="/bluetooth" element={<BluetoothView  />} />
+          <Route path="/qrac" element={<QRAC  />} />
         </Routes>
       </ResizablePanel>
     </ResizablePanelGroup>
