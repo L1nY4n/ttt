@@ -1,6 +1,10 @@
-use std::{net::Ipv4Addr, time::Duration};
+use std::{
+    net::{IpAddr, Ipv4Addr},
+    time::Duration,
+};
 
 use bytes::{BufMut, Bytes, BytesMut};
+use serde::{Deserialize, Serialize};
 use tokio::{net::UdpSocket, time};
 
 use crate::error;
@@ -11,8 +15,10 @@ fn oxr8(buff: &[u8]) -> u8 {
 
 const PREFIX: u8 = 0x02;
 const END: u8 = 0x03;
+
 const TYPE: u8 = 0x11;
 
+#[derive(Debug, Serialize, Deserialize)]
 struct Packet {
     mac: u64,
     cmd: u16,
@@ -60,12 +66,11 @@ impl Packet {
 }
 
 async fn udp_send(
-    ip_str: &str,
+    ip: Ipv4Addr,
     port: u16,
     cmd: u16,
     body: bytes::Bytes,
 ) -> Result<Packet, crate::error::Error> {
-    let ip = ip_str.parse::<Ipv4Addr>().expect("Invalid IP address");
     // 创建UDP套接字
     let socket = UdpSocket::bind(("0.0.0.0", 39998))
         .await
@@ -91,4 +96,32 @@ async fn udp_send(
         Ok((count, _src)) => Packet::from_bytes(&Bytes::copy_from_slice(&buffer[..count])),
         Err(e) => Err(crate::error::Error::Io(e)),
     }
+}
+
+#[tauri::command]
+async fn cmd(
+    ip: Ipv4Addr,
+    port: u16,
+    cmd: u16,
+    body: bytes::Bytes,
+) -> Result<Packet, error::Error> {
+    println!("args body={:#?}", body);
+    match udp_send(ip, port, cmd, body).await {
+        Ok(packet) => {
+            println!("packet: {:#?}", packet);
+            Ok(packet)
+        }
+        Err(err) => {
+            println!("err ={}", err);
+            Err(err)
+        }
+    }
+}
+
+#[tauri::command]
+fn encode(cmd: u16, body: Vec<u8>) -> Vec<u8> {
+    let mut bytes = Vec::new();
+    bytes.extend_from_slice(&cmd.to_be_bytes());
+    bytes.extend_from_slice(&body);
+    bytes
 }
