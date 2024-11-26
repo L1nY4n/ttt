@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::protocol::{
     bytes_serializable::BytesSerializable,
-    command::{ REBOOT},
+    command::REBOOT,
     Command,
 };
 

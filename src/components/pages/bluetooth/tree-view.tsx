@@ -34,11 +34,21 @@ type LightItem = {
   addr: number,
   isSelectable?: boolean;
   date: Date;
-  data: {
-    [key: string]: any  
-};
+  data: DataProps
   children?: GatewayItem[];
 };
+
+
+
+export type DataProps = {
+  status?: number;
+  mode?: number;
+  version?: number;
+  beacon?: {
+    [key: string]: number
+  }
+  [key: string]: any
+}
 
 
 

@@ -1,3 +1,5 @@
+import { DataProps } from "./tree-view";
+
 export type Message = {
   opcode: number;
   mesh_dev_type?: number;
@@ -116,12 +118,17 @@ export enum OpType {
   LIGHT_GROUP_SET = 0x33,
 
   LIGHT_LINKAGE_MODE_SET = 0x34,
+
+  LIGHT_BEACON_TAG = 0x37,
 }
 
-export function handleMessage(msg: Message) {
+export function handleMessage(msg: Message): {
+  belongGw: boolean;
+  updater: (priv_data: DataProps) => DataProps;
+} {
   console.log(msg);
   let belongGw = false;
-  let data = {} as object;
+  let data = {} as DataProps;
   switch (msg.opcode) {
     case OpType.GW_HEATBEAT_DATA:
       // {opcode: 86, version: "17", dev_model: "Turbo GW-BM-TCP-1", dev_id: "02000016CB0A", ipaddr: "192.168.100.162"}
@@ -142,11 +149,32 @@ export function handleMessage(msg: Message) {
       };
       console.log(data);
       break;
+
+    case OpType.LIGHT_BEACON_TAG:
+      const hex = msg.value as string;
+      const tag = hex.substring(0, 12);
+      const x = parseInt(hex.slice(-2), 16);
+      const rssi = x - 0x100;
+      const beacon = {
+        [tag]: rssi,
+      };
+      return {
+        belongGw,
+        updater: function (priv) {
+          const priv_beacon = priv.beacon || {};
+          return { ...priv, beacon: { ...priv_beacon, ...beacon } };
+        },
+      };
     default:
       break;
   }
 
-  return { belongGw, data };
+  return {
+    belongGw,
+    updater: function (priv) {
+      return { ...priv, ...data };
+    },
+  };
 }
 
 function genTopic(gw_mac: string) {
@@ -168,7 +196,7 @@ export const Cmd = (after?: (res: CmdResult) => any) => {
       topic,
       payload: {
         opcode: OpType.LIGHT_SET_ONOFF,
-       time_stamp : 1000,
+        time_stamp: 1000,
         dest_addr: light_addr,
         value: status,
       },

@@ -45,7 +45,7 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
           },
         ];
       });
-      const { belongGw, data } = handleMessage(msg);
+      const { belongGw, updater: updater } = handleMessage(msg);
       setTreeData((list) => {
         let index = list.findIndex((item) => {
           return item.id === gateway_mac;
@@ -65,7 +65,7 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
         if (belongGw) {
           list[index] = {
             ...list[index],
-            data: { ...list[index].data, ...data },
+            data: updater(list[index].data),
             date: mqttMsg.date,
           };
         } else {
@@ -79,7 +79,7 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
                 id: msg.src_addr!.toString(),
                 name: msg.src_addr!.toString(),
                 addr: msg.src_addr!,
-                data,
+                data:  updater({}),
                 date: mqttMsg.date,
               });
               list[index].children?.sort((a, b) => {
@@ -91,7 +91,7 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
                 // @ts-ignore
                 ...list[index].children[i],
                 // @ts-ignore
-                data: { ...list[index].children[i].data, ...data },
+                data: updater(list[index].children[i].data),
                 date: mqttMsg.date,
               };
             }
@@ -105,7 +105,8 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
           if (belongGw) {
             list[index] = {
               ...list[index],
-              data: { ...list[index].data, ...data },
+              data: updater(list[index].data),
+
             };
           } else {
             // const i = list[index].children?.findIndex((item) => {

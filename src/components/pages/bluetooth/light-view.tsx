@@ -88,10 +88,12 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
         <Router
           className={cn(
             "w-4 h-4",
-            differenceInMinutes(new Date(), info.date)  < 10  ?  "text-green-500" : "text-gray-300"
+            differenceInMinutes(new Date(), info.date) < 10
+              ? "text-green-500"
+              : "text-gray-300"
           )}
         />
-        <div>{info.addr}</div>
+        <div>{info.addr.toString(16)}</div>
         <div className="text-[75%] text-muted-foreground">
           {formatDistanceToNow(info.date, {
             locale: zhCN,
@@ -102,7 +104,7 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
       </div>
       <Popover>
         <PopoverTrigger asChild>
-          <button className="absolute top-1 right-0 flex items-center justify-center w-5 h-5 text-center border rounded-[50%] bg-border ">
+          <button className="absolute top-1 right-0 flex items-center justify-center w-5 h-5 text-center border rounded-[20%] bg-border ">
             <Settings2 className="w-4 h-4 text-slate-500" />
           </button>
         </PopoverTrigger>
@@ -113,32 +115,6 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
                 <div className="font-semibold">
                   <Badge>{info.name}</Badge>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex p-1 rounded-sm bg-slate-200">
-                      {StatusIcon}
-                      <Separator orientation="vertical" />
-                      <Settings2 className="h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuGroup>
-                      {statusList.map((item) => (
-                        <DropdownMenuItem
-                          key={item.value}
-                          onClick={() => {
-                            onStatusChange(item.value);
-                          }}
-                        >
-                          {item.title}
-                          <DropdownMenuShortcut>
-                            {item.icon}
-                          </DropdownMenuShortcut>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex p-1 rounded-sm bg-slate-200">
@@ -195,12 +171,51 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
 
       <div>
         <div>
-          <div className="flex items-center justify-around cursor-pointer">
-            {StatusIcon}
+          <div className="flex items-center ">
+          <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex p-1 rounded-sm bg-slate-200">
+                      {StatusIcon}
+                      <Separator orientation="vertical" />
+                      <Settings2 className="h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuGroup>
+                      {statusList.map((item) => (
+                        <DropdownMenuItem
+                          key={item.value}
+                          onClick={() => {
+                            onStatusChange(item.value);
+                          }}
+                        >
+                          {item.title}
+                          <DropdownMenuShortcut>
+                            {item.icon}
+                          </DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
             <Separator orientation="horizontal" />
             {modeIcon}
           </div>
         </div>
+      </div>
+      <div>
+        {info.data?.beacon && (
+          <div className="mt-1">
+            <Separator />
+            <div className="flex ">
+              {Object.entries(info.data.beacon).map(([key, value]) => (
+                <Badge key={key} variant="outline" className="p-0 text-xs text-emerald-500">
+                  {key.slice(-4)} = {value}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
