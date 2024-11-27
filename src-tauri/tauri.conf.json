@@ -1,6 +1,6 @@
 {
   "productName": "ttt",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "identifier": "com.x.dev",
   "build": {
     "beforeDevCommand": "bun run dev",

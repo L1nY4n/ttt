@@ -77,7 +77,7 @@ function Bluetooth() {
   }, []);
 
   function mqttCreate() {
-    const clientId = "clientxxxxx";
+    const clientId = "ttt_" + Math.random().toString(36).substr(2, 9);
     const username = "hyz";
     const password = "hyz2017@)!&";
     const topic = "#";

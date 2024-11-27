@@ -18,6 +18,7 @@ import {
   LightbulbOff,
   PersonStanding,
   Router,
+  Settings,
   Settings2,
   TrainFront,
   Zap,
@@ -105,7 +106,7 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
       <Popover>
         <PopoverTrigger asChild>
           <button className="absolute top-1 right-0 flex items-center justify-center w-5 h-5 text-center border rounded-[20%] bg-border ">
-            <Settings2 className="w-4 h-4 text-slate-500" />
+            <Settings className="w-4 h-4 text-slate-500" />
           </button>
         </PopoverTrigger>
         <PopoverContent className="flex flex-col items-start gap-2 p-3 text-sm text-left transition-all border rounded-lg w-80 hover:bg-accent">
@@ -172,32 +173,30 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
       <div>
         <div>
           <div className="flex items-center ">
-          <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex p-1 rounded-sm bg-slate-200">
-                      {StatusIcon}
-                      <Separator orientation="vertical" />
-                      <Settings2 className="h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuGroup>
-                      {statusList.map((item) => (
-                        <DropdownMenuItem
-                          key={item.value}
-                          onClick={() => {
-                            onStatusChange(item.value);
-                          }}
-                        >
-                          {item.title}
-                          <DropdownMenuShortcut>
-                            {item.icon}
-                          </DropdownMenuShortcut>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex p-1 rounded-sm bg-slate-200">
+                  {StatusIcon}
+                  <Separator orientation="vertical" />
+                  <Settings2 className="h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  {statusList.map((item) => (
+                    <DropdownMenuItem
+                      key={item.value}
+                      onClick={() => {
+                        onStatusChange(item.value);
+                      }}
+                    >
+                      {item.title}
+                      <DropdownMenuShortcut>{item.icon}</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Separator orientation="horizontal" />
             {modeIcon}
           </div>
@@ -209,8 +208,8 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
             <Separator />
             <div className="flex ">
               {Object.entries(info.data.beacon).map(([key, value]) => (
-                <Badge key={key} variant="outline" className="p-0 text-xs text-emerald-500">
-                  {key.slice(-4)} = {value}
+                <Badge key={key} variant="default" className="p-0.5 text-xs">
+                  {key.slice(-4)} <sup> {value}</sup>
                 </Badge>
               ))}
             </div>
