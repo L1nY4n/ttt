@@ -84,7 +84,7 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
         : mode_induction
     : null;
   return (
-    <div className="relative w-40 p-1">
+    <div className="relative w-48 p-1">
       <div className="flex items-center gap-2 ">
         <Router
           className={cn(
@@ -206,7 +206,7 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
         {info.data?.beacon && (
           <div className="mt-1">
             <Separator />
-            <div className="flex ">
+            <div className="flex gap-1">
               {Object.entries(info.data.beacon).map(([key, value]) => (
                 <Badge key={key} variant="default" className="p-0.5 text-xs">
                   {key.slice(-4)} <sup> {value}</sup>

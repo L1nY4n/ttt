@@ -13,6 +13,7 @@ pub struct SystmEvent {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(cmds::broadcast::BroadcastState::new())
         .manage(cmds::mqtt::State::new())
         .plugin(tauri_plugin_shell::init())
@@ -24,7 +25,6 @@ pub fn run() {
             cmds::broadcast::network_set,
             cmds::broadcast::tcp_server_set,
             cmds::broadcast::reboot,
-
             cmds::mqtt::mqtt_create_client,
             cmds::mqtt::mqtt_close_client,
             cmds::mqtt::mqtt_publish,
@@ -43,7 +43,6 @@ pub fn run() {
                 cmds::broadcast::network_set,
                 cmds::broadcast::tcp_server_set,
                 cmds::broadcast::reboot,
-    
                 cmds::mqtt::mqtt_create_client,
                 cmds::mqtt::mqtt_close_client,
                 cmds::mqtt::mqtt_publish,

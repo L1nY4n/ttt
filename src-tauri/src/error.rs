@@ -3,7 +3,7 @@
 pub enum Error {
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
-    
+
     #[error("serialport error: {0}")]
     SerialPort(#[from] serialport::Error),
     #[error("File is not valid utf8: {0}")]

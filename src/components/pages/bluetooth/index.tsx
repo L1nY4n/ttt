@@ -129,7 +129,7 @@ function Bluetooth() {
     })
       .then((_) => {
         toast.success("Done", {
-          duration: 1000,
+          duration: 5000,
           description: "MQTT Publish:" + topic + "-->" + playload,
         });
       })

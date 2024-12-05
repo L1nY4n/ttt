@@ -12,7 +12,6 @@ use crate::protocol::{
 
 use device_msg::DeviceInfo;
 
-
 pub mod device_msg;
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -10,12 +10,12 @@ use tcp_server_set::TcpServerSet;
 
 use crate::protocol::{bytes_serializable::BytesSerializable, Command};
 
-use super::{ NETWORK_SET, REBOOT, SCAN, TCP_SERVER_SET};
+use super::{NETWORK_SET, REBOOT, SCAN, TCP_SERVER_SET};
 
 pub mod broadcast_scan;
 pub mod network_set;
-pub mod tcp_server_set;
 pub mod reboot;
+pub mod tcp_server_set;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ServerCommand {
@@ -70,8 +70,12 @@ impl BytesSerializable for ServerCommand {
         };
         match code {
             SCAN => Ok(ServerCommand::Scan(Scan::from_bytes(cmd_bytes)?)),
-            NETWORK_SET =>Ok(ServerCommand::NetworkSet(NetworkSet::from_bytes(cmd_bytes)?)),
-            TCP_SERVER_SET => Ok(ServerCommand::TcpServerSet(TcpServerSet::from_bytes(cmd_bytes)?)),
+            NETWORK_SET => Ok(ServerCommand::NetworkSet(NetworkSet::from_bytes(
+                cmd_bytes,
+            )?)),
+            TCP_SERVER_SET => Ok(ServerCommand::TcpServerSet(TcpServerSet::from_bytes(
+                cmd_bytes,
+            )?)),
             REBOOT => Ok(ServerCommand::Reboot(Reboot::from_bytes(cmd_bytes)?)),
             _ => Err(crate::error::Error::NotImplement),
         }

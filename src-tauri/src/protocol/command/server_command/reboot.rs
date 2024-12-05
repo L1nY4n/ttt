@@ -3,11 +3,7 @@ use std::{fmt::Display, net::Ipv4Addr};
 use bytes::{BufMut, Bytes, BytesMut};
 use serde::{Deserialize, Serialize};
 
-use crate::protocol::{
-    bytes_serializable::BytesSerializable,
-    command::REBOOT,
-    Command,
-};
+use crate::protocol::{bytes_serializable::BytesSerializable, command::REBOOT, Command};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Reboot {}
