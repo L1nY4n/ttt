@@ -97,9 +97,9 @@ jobs:
           tagName: v__VERSION__
           releaseName: "TTT v__VERSION__"
           releaseBody: "More new features are now supported."
-          tauriScript: bun
+          # tauriScript: bun tauri
           args: --target ${{ matrix.target }}
-          
+
   publish-release:
     permissions:
       contents: write
