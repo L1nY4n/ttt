@@ -5,7 +5,7 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "../ui/resizable";
+} from "@/components/ui/resizable";
 
 import {} from "@/components/ui/form";
 import {
@@ -18,22 +18,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Badge } from "../ui/badge";
-import { Label } from "../ui/label";
-import { Separator } from "../ui/separator";
-import { Button } from "../ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { EggOff, Link, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { CanvasAddon } from "@xterm/addon-canvas";
 import "@xterm/xterm/css/xterm.css";
 
-import { Switch } from "../ui/switch";
-import { Textarea } from "../ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 let msgReceiver: UnlistenFn | null = null;
 let    xterm: Terminal | null = null;
 // const  shellprompt= ">> ";

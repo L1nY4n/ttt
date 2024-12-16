@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 mod cmds;
 pub mod error;
 mod protocol;
+pub mod tray;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SystmEvent {
@@ -13,10 +14,15 @@ pub struct SystmEvent {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(cmds::broadcast::BroadcastState::new())
         .manage(cmds::mqtt::State::new())
         .plugin(tauri_plugin_shell::init())
+        .setup(|app| {
+            tray::create_tray(app)?;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             cmds::broadcast::check_broadcast,
             cmds::broadcast::create_broadcast,

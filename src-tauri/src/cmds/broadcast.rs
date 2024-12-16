@@ -8,9 +8,7 @@ use chrono::{Local, NaiveDateTime};
 use local_ip_address::list_afinet_netifas;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager};
-use tokio::{
-    sync::{mpsc, Mutex},
-};
+use tokio::sync::{mpsc, Mutex};
 
 use crate::{
     protocol::{

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Device, DeviceList } from "@/components/pages/broadcast/dev-list";
+import { Device, DeviceList } from "./dev-list";
 import { ListX, PlugZap, Radar, Unplug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

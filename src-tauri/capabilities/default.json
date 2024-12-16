@@ -2,16 +2,29 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main"],
+  "windows": [
+    "main",
+    "update",
+    "quit"
+  ],
+  "platforms": [
+    "macOS",
+    "windows",
+    "linux"
+  ],
+  "webviews": [
+    "main",
+    "update",
+    "quit"
+  ],
   "permissions": [
-    "core:path:default",
-    "core:event:default",
-    "core:window:default",
-    "core:app:default",
-    "core:image:default",
-    "core:resources:default",
-    "core:menu:default",
-    "core:tray:default",
-    "shell:allow-open"
+    "core:default",
+    "shell:allow-open",
+    "core:window:allow-minimize",
+    "core:window:allow-destroy",
+    "core:window:allow-set-title",
+    "core:window:allow-hide",
+    "core:window:allow-set-focus",
+    "process:default"
   ]
 }

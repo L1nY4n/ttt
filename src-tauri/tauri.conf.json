@@ -1,20 +1,48 @@
 {
   "productName": "ttt",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "identifier": "com.x.dev",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1430",
     "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
-
   },
   "app": {
     "windows": [
       {
         "title": "ttt",
         "width": 1000,
-        "height": 800
+        "height": 800,
+        "url": "/"
+      },
+      {
+        "title": "更新",
+        "label": "update",
+        "width": 400,
+        "height": 200,
+        "url": "/updater",
+        "alwaysOnTop": true,
+        "minimizable": false,
+
+        "center": true,
+        "visible": false
+      },
+      {
+        "title": "退出系统",
+        "label": "quit",
+        "width": 300,
+        "height": 150,
+        "maxHeight": 400,
+        "maxWidth": 200,
+        "url": "/quit",
+        "visible": false,
+        "resizable": false,
+        "devtools": false,
+        "alwaysOnTop": true,
+        "minimizable": false,
+        "maximizable": false,
+        "center": true
       }
     ],
     "security": {
@@ -36,11 +64,9 @@
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgwRDgzQjEyOEY0QTk4QjcKUldTM21FcVBFanZZZ0R3ak5uYXZ1RUhmUWZhNitSb2IyY2J2TlJqY1FtbnFCWmVxMEtuMDRmdXYK",
-      
-      "endpoints": [
-        "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}",
 
-        "https://github.com/user/repo/releases/latest/download/latest.json"
+      "endpoints": [
+        "https://github.com/L1nY4n/ttt/releases/download/latest/latest.json"
       ]
     }
   }
