@@ -37,7 +37,8 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
 
       setHistory((list) => {
         return [
-          ...list,
+          // keep last 5000
+          ...list.slice(-5000),
           {
             topic: mqttMsg.topic,
             payload: msg,
@@ -79,7 +80,7 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
                 id: msg.src_addr!.toString(),
                 name: msg.src_addr!.toString(),
                 addr: msg.src_addr!,
-                data:  updater({}),
+                data: updater({}),
                 date: mqttMsg.date,
               });
               list[index].children?.sort((a, b) => {
@@ -106,7 +107,6 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
             list[index] = {
               ...list[index],
               data: updater(list[index].data),
-
             };
           } else {
             // const i = list[index].children?.findIndex((item) => {
