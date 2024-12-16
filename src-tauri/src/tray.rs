@@ -5,55 +5,8 @@ use tauri::tray::TrayIconBuilder;
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconEvent};
 use tauri::{Emitter, Manager};
 
-// 1. AI对话：弹出webview,访问 https://aichat3.raisound.com/web/#/chat
-// 2. AIPPT：弹出webview,访问 https://aichat3.raisound.com/web/#/ppt
-// 3. AI绘画：弹出webview,访问 https://aichat3.raisound.com/web/#/draw
-// 4. AI阅读：弹出webview,访问 https://aichat3.raisound.com/web/#/extractorbak
-// 5. 思维导图：弹出webview,访问 https://aichat3.raisound.com/web/#/minds
-// 6. 智能体: 弹出webview,访问 https://aichat3.raisound.com/web/#/agent
-// 7. 检查更新: 检查更新API，判断是否有最新版本程序，如果有，弹出下载按钮窗口；
-// 8. 退出系统
-const TRAY_MENU: [(&str, &str, &str, u8); 6] = [
-    (
-        "chat",
-        "AI对话",
-        "https://aichat3.raisound.com/web/#/chat",
-        1,
-    ),
-    ("ppt", "AIPPT", "https://aichat3.raisound.com/web/#/ppt", 3),
-    (
-        "draw",
-        "AI绘画",
-        "https://aichat3.raisound.com/web/#/draw",
-        4,
-    ),
-    (
-        "extractorbak",
-        "AI阅读",
-        "https://aichat3.raisound.com/web/#/extractorbak",
-        5,
-    ),
-    (
-        "minds",
-        "思维导图",
-        "https://aichat3.raisound.com/web/#/minds",
-        6,
-    ),
-    (
-        "agent",
-        "智能体",
-        "https://aichat3.raisound.com/web/#/agent",
-        7,
-    ),
-];
-
 pub fn create_tray(app: &mut tauri::App) -> Result<()> {
     let menu = Menu::new(app.app_handle())?;
-
-    for (id, name, _, _) in TRAY_MENU.iter() {
-        let item = MenuItem::with_id(app, id, name, true, None::<&str>).unwrap();
-        menu.append(&item)?;
-    }
 
     let update = &MenuItem::with_id(app, "update", "检查更新", true, None::<&str>).unwrap();
     let quit = &MenuItem::with_id(app, "quit", "退出", true, Some("CmdOrControl+Q")).unwrap();
@@ -65,7 +18,6 @@ pub fn create_tray(app: &mut tauri::App) -> Result<()> {
 
     let tray_menu = TrayIconBuilder::with_id("tray")
         .menu(&menu)
-
         .icon(app.default_window_icon().unwrap().clone())
         .build(app)?;
 
@@ -97,8 +49,6 @@ pub fn create_tray(app: &mut tauri::App) -> Result<()> {
                     let _ = webview.hide();
                 }
             } else {
-            
-
                 #[cfg(not(target_os = "macos"))]
                 {
                     let _ = webview.show();
@@ -128,28 +78,9 @@ pub fn create_tray(app: &mut tauri::App) -> Result<()> {
             {
                 let _ = h.get_webview_window("main").unwrap().show();
             }
-       
-            if let Some((_, _name, url,index)) = TRAY_MENU
-                .iter()
-                .find(|(id, _, _,_)| *id == m) { 
-                    
-                      let wv = h .get_webview_window("main")
-                        .unwrap();
-                       let _ =   wv.eval(&format!("
-                        window.location.replace('{}'); 
-                        var target =  document.querySelectorAll('.sidebar-container .module-list .module-item')[{}];
-                        console.log('target--',target);
-                        target.click();", url,index)); 
-
-                        if wv.is_minimized().unwrap_or(true) {
-                            let _ = wv.unminimize();
-                        }
-
-                        if !wv.is_focused().unwrap_or(false) {
-                            let _ = wv.set_focus();
-                        }
-                    }
         }
+    
+
     });
 
     Ok(())
