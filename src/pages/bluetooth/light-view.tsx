@@ -167,7 +167,7 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                <Badge variant={"outline"}>version: {info.data?.version}</Badge>
+                <Badge variant={"outline"}>version: {info.data?.version?.toString(16)}</Badge>
               </div>
             </PopoverContent>
           </Popover>

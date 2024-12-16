@@ -3,6 +3,10 @@ import { check, Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { useEffect, useState } from "react";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { Button } from "@/components/ui/button";
+import { Download, Undo2 } from "lucide-react";
+ 
+import { Progress } from "@/components/ui/progress"
 
 export const Updater = () => {
   const [currentVersion, setCurrentVersion] = useState("");
@@ -37,6 +41,7 @@ export const Updater = () => {
             setupdateState("Progress");
             setDownloaded((v) => v + event.data.chunkLength);
 
+
             break;
           case "Finished":
             setupdateState("Finished");
@@ -66,8 +71,8 @@ export const Updater = () => {
             </div>
             <p className="update-content">{update.body}</p>
             {(updateState === "Progress" || updateState === "Finished") && (
-              <div>
-                {" "}
+              <div className="flex items-center gap-2 mt-2">
+               <Progress  value={Math.floor((downloaded / contentLength) * 100)} className="  w-[50%]" />
                 {(downloaded / 1024).toFixed(2)} /{" "}
                 {(contentLength / 1024).toFixed(2)} KB (
                 {Math.floor((downloaded / contentLength) * 100)}%)
@@ -78,15 +83,15 @@ export const Updater = () => {
           <p className="">无可用更新</p>
         )}
       </div>
-      <div className="update-footer">
+      <div className="absolute flex gap-2 bottom-1 right-1">
         {update?.available && updateState == null && (
-          <button onClick={() => downloadAndInstall()}>下载并安装</button>
+          <Button  size={"sm"}  onClick={() => downloadAndInstall()}><Download className="w-4 h-4 mr-2" />下载并安装</Button>
         )}
         {updateState == "Finished" && (
-          <button onClick={() => relaunch()}>重启</button>
+          <Button   size={"sm"} onClick={() => relaunch()}>重启</Button>
         )}
         {updateState == null && (
-          <button onClick={() => cancelUpdate()}>退出</button>
+          <Button size={"sm"} onClick={() => cancelUpdate()}><Undo2 className="w-4 h-4 mr-2" />返回</Button>
         )}
       </div>
     </div>

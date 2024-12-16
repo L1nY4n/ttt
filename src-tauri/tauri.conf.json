@@ -1,6 +1,6 @@
 {
-  "productName": "ttt",
-  "version": "0.0.6",
+  "productName": "Hyz-tool",
+  "version": "0.0.3",
   "identifier": "com.x.dev",
   "build": {
     "beforeDevCommand": "bun run dev",
