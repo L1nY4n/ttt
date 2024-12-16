@@ -57,11 +57,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: Cache rust build artifacts
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri
-          cache-on-failure: true
+
+
 
       - name: setup node
         uses: actions/setup-node@v4
