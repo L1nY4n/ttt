@@ -213,10 +213,14 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
                 .map(([key, value]) => (
                   <div
                     key={key}
-                    className="px-[3px] py-[2px] text-xs bg-slate-800 rounded-[5px]"
+                    className="px-[3px] py-[2px] text-xs bg-slate-800 rounded-[5px] flex  items-center gap-1"
                   >
-                    <span className="text-yellow-400"> {key} </span>
-                    <sup className="text-green-300 "> {value.rssi}</sup>
+                    <div className="text-blue-300  leading-[1.2rem]"> {key} </div>
+                    <div className="grid grid-rows-2 ">
+                    <div className="text-green-400 text-[0.7rem]  leading-[0.7rem]"> {value.rssi}</div>
+                    <div className="text-yellow-400 text-[0.7rem]   leading-[0.7rem]"> {value.battery}%</div>
+                    </div>
+               
                   </div>
                 ))}
             </div>

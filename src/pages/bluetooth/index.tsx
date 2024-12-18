@@ -10,6 +10,7 @@ import {
   ArrowBigUpDash,
   ArrowBigDownDash,
   SquareArrowOutUpRight,
+  Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,6 +34,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { statusList } from "./const";
 
 const STORE_KEY = "LIGHT_TREE";
 
@@ -61,12 +71,11 @@ function Bluetooth() {
     }
 
     invoke("mqtt_state").then((res) => {
-      console.log(res)
+      console.log(res);
       const { connected } = res as { connected: boolean };
-   
+
       setConnected(connected as boolean);
     });
-
 
     return () => {
       !!unlisten && unlisten();
@@ -296,14 +305,40 @@ function Bluetooth() {
           <Tree elements={treeData}>
             {treeData.map((gw) => {
               const title = (
-                <div className="p-2 bg-gray-300 rounded-md">
-                  <div className="flex justify-between ">
-                    <b> {gw.name}</b>
-                    <code className="p-0.5 text-xs text-green-500 rounded-full ">
-                      {gw.children?.length}
-                    </code>
+                <div className="p-2 bg-gray-200 rounded-md">
+                  <div className="flex items-center justify-between mb-1">
+                    <span>
+                  
+                      <b> {gw.name}</b>
+                      <code className="text-orange-400"> {gw.children?.length}</code>
+                    </span>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="flex p-0.5 rounded-md bg-slate-200">
+                          <Settings2 className="h-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuGroup>
+                          {statusList.map((item) => (
+                            <DropdownMenuItem
+                              key={item.value}
+                              onClick={() => {
+                                onStatusChange(gw.name, 0xffff, item.value);
+                              }}
+                            >
+                              {item.title}
+                              <DropdownMenuShortcut>
+                                {item.icon}
+                              </DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <div></div>
+
                   <div>
                     <div className="flex items-center text-xs">
                       <i className="text-xs text-neutral-600">
