@@ -314,7 +314,7 @@ function Bluetooth() {
                     </span>
 
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger >
                         <button className="flex p-0.5 rounded-md bg-slate-200">
                           <Settings2 className="h-4" />
                         </button>
@@ -324,8 +324,10 @@ function Bluetooth() {
                           {statusList.map((item) => (
                             <DropdownMenuItem
                               key={item.value}
-                              onClick={() => {
+                              onClick={(event) => {
                                 onStatusChange(gw.name, 0xffff, item.value);
+                                event.stopPropagation();
+                             
                               }}
                             >
                               {item.title}

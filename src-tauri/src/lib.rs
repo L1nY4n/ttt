@@ -37,7 +37,7 @@ pub fn run() {
             cmds::mqtt::mqtt_state
         ]);
 
-    #[cfg(not(target_os = "ios"))]
+     #[cfg(desktop)]
     {
         builder = builder
             .manage(cmds::serialport::State::new())
@@ -57,11 +57,12 @@ pub fn run() {
                 cmds::serialport::available_ports,
                 cmds::serialport::open_port,
                 cmds::serialport::close_port,
-                cmds::serialport::write_port
+                cmds::serialport::write_port,
+                cmds::check_update
             ]);
     }
 
-    #[cfg(desktop)]
+
     {
         builder = builder
             .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}))

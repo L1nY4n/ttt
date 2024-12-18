@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use anyhow::Result;
 use tauri::menu::Menu;
 use tauri::menu::{MenuItem, PredefinedMenuItem};
@@ -65,7 +67,7 @@ pub fn create_tray(app: &mut tauri::App) -> Result<()> {
 
     tray_menu.on_menu_event(move |h, event| match event.id.as_ref() {
         "quit" => {
-            let _ = h.get_webview_window("quit").unwrap().show();
+           h.exit(0)
          
         }
         "update" => {

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 
 import { listen } from "@tauri-apps/api/event";
 import "./globals.css";
-import { RadarIcon, PocketKnife, Settings, BluetoothIcon,Usb, QrCode } from "lucide-react";
-
+import { RadarIcon, Settings, BluetoothIcon, Usb, QrCode } from "lucide-react";
+import { check } from "@tauri-apps/plugin-updater";
+import { invoke } from "@tauri-apps/api/core";
 import { cn } from "@/lib/utils";
 import { Route, Routes } from "react-router-dom";
 import {
@@ -14,7 +15,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Nav } from "./nav.tsx";
-import { Label } from "./components/ui/label.tsx";
+
 import Broadcast from "@/pages/broadcast/index.tsx";
 import SerialPort from "@//pages/serialport.tsx";
 import BluetoothView from "@//pages/bluetooth/index";
@@ -29,9 +30,9 @@ type SystemEvent = {
 function Home() {
   const [isCollapsed, setIsCollapsed] = useState(true);
   //const [windowsSize,setWindowsSize] = useState(800);
-  const  [maxSize,setMaxSize] = useState(30);
+  const [maxSize, setMaxSize] = useState(30);
   const [collapsedSize, setCollapsedSize] = useState(5);
-  
+
   let avoidExtraCall = false;
 
   useEffect(() => {
@@ -43,28 +44,31 @@ function Home() {
           description: ev.description,
         });
       });
+      check().then((update) => {
+        if (update?.available) {
+          invoke("check_update");
+        }
+      });
     }
   }, []);
 
   useEffect(() => {
-        const observer = new ResizeObserver((entries) => {
-            for (let entry of entries) {
-           //   setWindowsSize(entry.contentRect.width)
-      
-              setMaxSize(200 / entry.contentRect.width * 100)
-              setCollapsedSize(50 / entry.contentRect.width * 100)
-          
-            }
-        });
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        //   setWindowsSize(entry.contentRect.width)
 
-        observer.observe(document.body);
+        setMaxSize((200 / entry.contentRect.width) * 100);
+        setCollapsedSize((50 / entry.contentRect.width) * 100);
+      }
+    });
 
-        // Cleanup function
-        return () => {
-            observer.disconnect();
-        };
-    
-}, []);
+    observer.observe(document.body);
+
+    // Cleanup function
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <ResizablePanelGroup
@@ -77,7 +81,6 @@ function Home() {
       className="items-stretch h-screen"
     >
       <ResizablePanel
-        
         defaultSize={25}
         collapsedSize={collapsedSize}
         collapsible={true}
@@ -100,9 +103,7 @@ function Home() {
           )}
         >
           <div className="flex items-center h-5 space-x-4 text-sm">
-            <PocketKnife className="w-8 h-8"  />
-            {!isCollapsed && <Separator  orientation="vertical" />}
-            {!isCollapsed && <Label >X </Label>}
+            <img className="w-8 h-8" src="hyz_logo_m.png" alt="logo" />
           </div>
         </div>
         <Separator />
@@ -115,7 +116,7 @@ function Home() {
               path: "/",
               icon: RadarIcon,
               variant: "default",
-              animate: "animate-spin"
+              animate: "animate-spin",
             },
 
             {
@@ -131,7 +132,7 @@ function Home() {
               label: "",
               icon: BluetoothIcon,
               variant: "ghost",
-              animate: "animate-bounce"
+              animate: "animate-bounce",
             },
             {
               title: "QR ac",
@@ -139,11 +140,11 @@ function Home() {
               label: "",
               icon: QrCode,
               variant: "ghost",
-              animate: "animate-plus"
+              animate: "animate-plus",
             },
           ]}
         />
-        <Separator  />
+        <Separator />
         <Nav
           isCollapsed={isCollapsed}
           links={[
@@ -161,9 +162,9 @@ function Home() {
       <ResizablePanel defaultSize={75} minSize={70}>
         <Routes>
           <Route index path="/broadcast" element={<Broadcast />} />
-          <Route path="/serialport" element={<SerialPort  />} />
-          <Route path="/bluetooth" element={<BluetoothView  />} />
-          <Route path="/qrac" element={<QRAC  />} />
+          <Route path="/serialport" element={<SerialPort />} />
+          <Route path="/bluetooth" element={<BluetoothView />} />
+          <Route path="/qrac" element={<QRAC />} />
         </Routes>
       </ResizablePanel>
     </ResizablePanelGroup>
