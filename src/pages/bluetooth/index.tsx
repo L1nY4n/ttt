@@ -38,7 +38,7 @@ const STORE_KEY = "LIGHT_TREE";
 
 function Bluetooth() {
   const [data, setData] = useState("");
-  const [addr, setAddr] = useState("192.168.101.112");
+  const [addr, setAddr] = useState("192.168.100.64");
   const [port, setPort] = useState(1883);
   const [username, setUsername] = useState("hyz");
   const [password, setPassword] = useState("hyz2017@)!&");

@@ -1,6 +1,6 @@
 {
   "productName": "Hyz-tool",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "identifier": "com.x.dev",
   "build": {
     "beforeDevCommand": "bun run dev",
@@ -10,12 +10,7 @@
   },
   "app": {
     "windows": [
-      {
-        "title": "ttt",
-        "width": 1000,
-        "height": 800,
-        "url": "/"
-      },
+
       {
         "title": "更新",
         "label": "update",
@@ -43,6 +38,12 @@
         "minimizable": false,
         "maximizable": false,
         "center": true
+      },
+      {
+        "title": "ttt",
+        "width": 1000,
+        "height": 800,
+        "url": "/"
       }
     ],
     "security": {

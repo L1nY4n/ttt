@@ -45,7 +45,10 @@ export type DataProps = {
   mode?: number;
   version?: number;
   beacon?: {
-    [key: string]: number
+    [key: string]: {
+      rssi: number,
+      battery: number
+    }
   }
   [key: string]: any
 }

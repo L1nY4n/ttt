@@ -152,19 +152,23 @@ export function handleMessage(msg: Message): {
 
     case OpType.LIGHT_BEACON_TAG:
       const hex = msg.value as string;
-      const tag = hex.substring(0, 12);
-      const x = parseInt(hex.slice(-2), 16);
-      const rssi = x - 0x100;
-      const beacon = {
-        [tag]: rssi,
-      };
-      return {
-        belongGw,
-        updater: function (priv) {
-          const priv_beacon = priv.beacon || {};
-          return { ...priv, beacon: { ...priv_beacon, ...beacon } };
-        },
-      };
+      if (hex.length % 10 === 0) {
+        let beacon = {} as { [key: string]: { rssi: number; battery: number } };
+        for (let i = 0; i < hex.length; i += 10) {
+          const tag = hex.substring(i, i + 6);
+          const rssi = parseInt(hex.substring(i + 6, i + 8), 16) - 0x100;
+          const battery = parseInt(hex.substring(i + 8, i + 10), 16);
+          beacon[tag] = { rssi, battery };
+        }
+        return {
+          belongGw,
+          updater: function (priv) {
+            const priv_beacon = priv.beacon || {};
+            return { ...priv, beacon: { ...priv_beacon, ...beacon } };
+          },
+        };
+      }
+
     default:
       break;
   }

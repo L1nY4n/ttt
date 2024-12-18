@@ -215,8 +215,8 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
                     key={key}
                     className="px-[3px] py-[2px] text-xs bg-slate-800 rounded-[5px]"
                   >
-                    <span className="text-yellow-300"> {key.slice(-4)} </span>
-                    <sup className="text-green-300 "> {value}</sup>
+                    <span className="text-yellow-400"> {key} </span>
+                    <sup className="text-green-300 "> {value.rssi}</sup>
                   </div>
                 ))}
             </div>
