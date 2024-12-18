@@ -167,6 +167,20 @@ export function handleMessage(msg: Message): {
             return { ...priv, beacon: { ...priv_beacon, ...beacon } };
           },
         };
+      }else{
+        const tag = hex.substring(0, 12);
+        const x = parseInt(hex.slice(-2), 16);
+        const rssi = x - 0x100;
+        const beacon = {
+          [tag]: {rssi, battery: 0}
+        };
+        return {
+          belongGw,
+          updater: function (priv) {
+            const priv_beacon = priv.beacon || {};
+            return { ...priv, beacon: { ...priv_beacon, ...beacon } };
+          },
+        };
       }
 
     default:
