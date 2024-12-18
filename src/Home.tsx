@@ -103,7 +103,7 @@ function Home() {
           )}
         >
           <div className="flex items-center h-5 space-x-4 text-sm">
-            <img className="w-8 h-8" src="hyz_logo_m.png" alt="logo" />
+            <img className="w-8 h-8" src="hyz_logo.png" alt="logo" />
           </div>
         </div>
         <Separator />
