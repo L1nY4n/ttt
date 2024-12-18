@@ -126,7 +126,7 @@ export function handleMessage(msg: Message): {
   belongGw: boolean;
   updater: (priv_data: DataProps) => DataProps;
 } {
-  console.log(msg);
+
   let belongGw = false;
   let data = {} as DataProps;
   switch (msg.opcode) {
@@ -153,12 +153,12 @@ export function handleMessage(msg: Message): {
     case OpType.LIGHT_BEACON_TAG:
       const hex = msg.value as string;
       if (hex.length % 10 === 0) {
-        let beacon = {} as { [key: string]: { rssi: number; battery: number } };
+        let beacon = {} as { [key: string]: { rssi: number; battery: number,date: Date } };
         for (let i = 0; i < hex.length; i += 10) {
           const tag = hex.substring(i, i + 6);
           const rssi = parseInt(hex.substring(i + 6, i + 8), 16) - 0x100;
           const battery = parseInt(hex.substring(i + 8, i + 10), 16);
-          beacon[tag] = { rssi, battery };
+          beacon[tag] = { rssi, battery,date: new Date() };
         }
         return {
           belongGw,
@@ -172,7 +172,7 @@ export function handleMessage(msg: Message): {
         const x = parseInt(hex.slice(-2), 16);
         const rssi = x - 0x100;
         const beacon = {
-          [tag]: {rssi, battery: 0}
+          [tag]: {rssi, battery: 0, date: new Date()},
         };
         return {
           belongGw,

@@ -1,11 +1,9 @@
-use std::process::exit;
-
 use anyhow::Result;
 use tauri::menu::Menu;
 use tauri::menu::{MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconEvent};
-use tauri::{Emitter, Manager};
+use tauri::Manager;
 
 pub fn create_tray(app: &mut tauri::App) -> Result<()> {
     let menu = Menu::new(app.app_handle())?;
@@ -32,7 +30,7 @@ pub fn create_tray(app: &mut tauri::App) -> Result<()> {
         } = event
         {
             let webview = app_clone.get_webview_window("main").unwrap();
-            let _ = webview.emit("FULLSCREEN", [0]);
+
             if webview.is_visible().unwrap() {
                 let webview_clone = webview.clone();
                 #[cfg(target_os = "macos")]
@@ -59,21 +57,17 @@ pub fn create_tray(app: &mut tauri::App) -> Result<()> {
                 if webview.is_minimized().unwrap() {
                     let _ = webview.unminimize();
                 }
-
                 let _ = webview.set_focus();
             }
         }
     });
 
     tray_menu.on_menu_event(move |h, event| match event.id.as_ref() {
-        "quit" => {
-           h.exit(0)
-         
-        }
+        "quit" => h.exit(0),
         "update" => {
             let webview = h.get_webview_window("update").unwrap();
-            let _ = webview .show();
-            let _ = webview .set_focus();
+            let _ = webview.show();
+            let _ = webview.set_focus();
         }
         m => {
             #[cfg(not(target_os = "macos"))]
@@ -81,8 +75,6 @@ pub fn create_tray(app: &mut tauri::App) -> Result<()> {
                 let _ = h.get_webview_window("main").unwrap().show();
             }
         }
-    
-
     });
 
     Ok(())

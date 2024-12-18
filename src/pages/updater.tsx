@@ -34,6 +34,7 @@ export const Updater = () => {
         switch (event.event) {
           case "Started":
             setupdateState("Started");
+            setDownloaded(0);
             setContentLength(event.data.contentLength as number);
 
             break;
@@ -90,8 +91,8 @@ export const Updater = () => {
         {updateState == "Finished" && (
           <Button   size={"sm"} onClick={() => relaunch()}>重启</Button>
         )}
-        {updateState == null && (
-          <Button size={"sm"} onClick={() => cancelUpdate()}><Undo2 className="w-4 h-4 mr-2" />返回</Button>
+        {(updateState == null  || updateState === "Progress") && (
+          <Button size={"sm"} onClick={() => cancelUpdate()}><Undo2 className="w-4 h-4 mr-2" />取消</Button>
         )}
       </div>
     </div>

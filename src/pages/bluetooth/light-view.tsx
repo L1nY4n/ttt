@@ -36,11 +36,17 @@ import { Badge } from "@/components/ui/badge";
 
 type LightViewProps = {
   info: LightItem;
+  beaconOutline: number;
   onStatusChange: (status: number) => void;
   onModeChange: (mode: number) => void;
 };
 
-function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
+function LightView({
+  info,
+  beaconOutline,
+  onStatusChange,
+  onModeChange,
+}: LightViewProps) {
   const status_on = <Lightbulb className="w-4 h-4 text-orange-400" />;
   const status_off = <LightbulbOff className="w-4 h-4 text-gray-600" />;
   const status_flash = (
@@ -84,7 +90,7 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
         : mode_induction
     : null;
   return (
-    <div className="relative   w-[240px]">
+    <div className="relative w-64">
       <div className="flex items-center justify-between gap-2 p-1">
         <div className="flex items-center gap-2">
           <Router
@@ -105,6 +111,30 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex p-0.5 rounded-sm bg-slate-200">
+                {StatusIcon}
+                <Separator orientation="vertical" />
+                <Settings2 className="h-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuGroup>
+                {statusList.map((item) => (
+                  <DropdownMenuItem
+                    key={item.value}
+                    onClick={() => {
+                      onStatusChange(item.value);
+                    }}
+                  >
+                    {item.title}
+                    <DropdownMenuShortcut>{item.icon}</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Popover>
             <PopoverTrigger asChild>
               <button className=" inline-flex items-center justify-center w-5 h-5 text-center border rounded-[20%] bg-border ">
@@ -167,34 +197,12 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                <Badge variant={"outline"}>version: {info.data?.version?.toString(16)}</Badge>
+                <Badge variant={"outline"}>
+                  version: {info.data?.version?.toString(16)}
+                </Badge>
               </div>
             </PopoverContent>
           </Popover>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex p-0.5 rounded-sm bg-slate-200">
-                {StatusIcon}
-                <Separator orientation="vertical" />
-                <Settings2 className="h-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuGroup>
-                {statusList.map((item) => (
-                  <DropdownMenuItem
-                    key={item.value}
-                    onClick={() => {
-                      onStatusChange(item.value);
-                    }}
-                  >
-                    {item.title}
-                    <DropdownMenuShortcut>{item.icon}</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
@@ -209,18 +217,31 @@ function LightView({ info, onStatusChange, onModeChange }: LightViewProps) {
             <Separator />
             <div className="flex flex-wrap gap-1 min-h-4">
               {Object.entries(info.data.beacon)
-                .sort((a, b) => b[0].localeCompare(a[0]))
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .filter(
+                  ([_, value]) =>
+                    value.date &&
+                    differenceInMinutes(new Date(), value.date) <= beaconOutline
+                )
                 .map(([key, value]) => (
                   <div
                     key={key}
-                    className="px-[3px] py-[2px] text-xs bg-slate-800 rounded-[5px] flex  items-center gap-1"
+                    className="px-[3px] py-[2px] text-xs bg-slate-800 rounded-[5px] flex  items-center gap-1 w-20"
                   >
-                    <div className="text-blue-300  leading-[1.2rem]"> {key} </div>
-                    <div className="grid grid-rows-2 ">
-                    <div className="text-green-400 text-[0.7rem]  leading-[0.7rem]"> {value.rssi}</div>
-                    <div className="text-yellow-400 text-[0.7rem]   leading-[0.7rem]"> {value.battery}%</div>
+                    <div className="text-blue-300  leading-[1.2rem]">
+                      {" "}
+                      {key}{" "}
                     </div>
-               
+                    <div className="grid grid-rows-2 ">
+                      <div className="text-green-400 text-[0.7rem]  leading-[0.7rem]">
+                        {" "}
+                        {value.rssi}
+                      </div>
+                      <div className="text-yellow-400 text-[0.7rem]   leading-[0.7rem]">
+                        {" "}
+                        {value.battery}%
+                      </div>
+                    </div>
                   </div>
                 ))}
             </div>

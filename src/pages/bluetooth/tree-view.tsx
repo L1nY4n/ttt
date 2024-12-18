@@ -47,7 +47,8 @@ export type DataProps = {
   beacon?: {
     [key: string]: {
       rssi: number,
-      battery: number
+      battery: number,
+      date?: Date
     }
   }
   [key: string]: any

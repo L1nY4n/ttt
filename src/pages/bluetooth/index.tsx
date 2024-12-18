@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import {
   List,
   PlugZap,
-  Send,
   Unplug,
   ListX,
   ArrowBigUpDash,
@@ -13,7 +12,7 @@ import {
   Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+//import { Textarea } from "@/components/ui/textarea";
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
@@ -22,7 +21,7 @@ import { toast } from "sonner";
 import { Tree, Gateway, CollapseButton, Light } from "./tree-view";
 import { cn } from "@/lib/utils";
 import useBluetoothContext from "./context";
-import { localStorageGet, localStorageSet } from "@/lib/utils";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LightView from "./light-view";
 import {
@@ -43,20 +42,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { statusList } from "./const";
+import { Label } from "@/components/ui/label";
 
-const STORE_KEY = "LIGHT_TREE";
+//const STORE_KEY = "LIGHT_TREE";
 
 function Bluetooth() {
-  const [data, setData] = useState("");
+ // const [data, setData] = useState("");
   const [addr, setAddr] = useState("192.168.100.64");
   const [port, setPort] = useState(1883);
   const [username, setUsername] = useState("hyz");
   const [password, setPassword] = useState("hyz2017@)!&");
   const [connected, setConnected] = useState(false);
 
-  const init_data = localStorageGet(STORE_KEY) || [];
+  const [beaconOutline, setBeaconOutline] = useState(3);
+ // const init_data = localStorageGet(STORE_KEY) || [];
   const { treeData, handleDate, history, setHistory, Cmd } =
-    useBluetoothContext(init_data);
+    useBluetoothContext([]);
 
   let avoidExtraCall = false;
   let unlisten: UnlistenFn | undefined = undefined;
@@ -80,7 +81,7 @@ function Bluetooth() {
     return () => {
       !!unlisten && unlisten();
       if (treeData.length > 0) {
-        localStorageSet(STORE_KEY, treeData);
+       // localStorageSet(STORE_KEY, treeData);
       }
     };
   }, []);
@@ -166,51 +167,84 @@ function Bluetooth() {
   return (
     <div className="flex flex-col flex-grow h-screen">
       <div className="bg-background/95 p-1 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">
-        <div className="flex justify-between w-full gap-3">
+        <div >
           {!connected ? (
-            <div className="flex items-center gap-x-1">
-              <Input
-                size={30}
-                className="w-36"
-                type="text"
-                defaultValue={addr}
-                placeholder="add"
-                onChange={(e) => setAddr(e.currentTarget.value)}
-              />
-              <Input
-                className="w-20"
-                type="number"
-                defaultValue={port}
-                placeholder="port"
-                onChange={(e) => setPort(parseInt(e.currentTarget.value))}
-              />
-              <Separator orientation="vertical" />
-              <Input
-                size={30}
-                className="w-20"
-                type="text"
-                defaultValue={username}
-                placeholder="username"
-                onChange={(e) => setUsername(e.currentTarget.value)}
-              />
-              <Input
-                size={30}
-                className="w-32"
-                type="text"
-                defaultValue={password}
-                placeholder="password"
-                onChange={(e) => setPassword(e.currentTarget.value)}
-              />
+            <div className="flex justify-between w-full gap-3 px-1">
+              <div className="flex items-center gap-x-1">
+                <Input
+                  size={30}
+                  className="w-36"
+                  type="text"
+                  defaultValue={addr}
+                  placeholder="add"
+                  onChange={(e) => setAddr(e.currentTarget.value)}
+                />
+                <Input
+                  className="w-20"
+                  type="number"
+                  defaultValue={port}
+                  placeholder="port"
+                  onChange={(e) => setPort(parseInt(e.currentTarget.value))}
+                />
+                <Separator orientation="vertical" />
+                <Input
+                  size={30}
+                  className="w-20"
+                  type="text"
+                  defaultValue={username}
+                  placeholder="username"
+                  onChange={(e) => setUsername(e.currentTarget.value)}
+                />
+                <Input
+                  size={30}
+                  className="w-32"
+                  type="text"
+                  defaultValue={password}
+                  placeholder="password"
+                  onChange={(e) => setPassword(e.currentTarget.value)}
+                />
+              </div>
+              <Button
+                variant="secondary"
+                size="icon"
+                onClick={(e) => {
+                  e.preventDefault();
+                  mqttCreate();
+                }}
+              >
+                <PlugZap color="green" className="w-10 h-6" />
+              </Button>
             </div>
           ) : (
-            <div className="flex gap-1 py-1 items-end w-[calc(100%_-_6rem)]">
-              <Textarea
+            <div className="flex items-center justify-end w-full">
+              <Button
+                variant="secondary"
+                size="icon"
+                onClick={(e) => {
+                  e.preventDefault();
+                  mqttClose();
+                }}
+              >
+                <Unplug color="red" className="w-10 h-6" />
+              </Button>
+            </div>
+          )}
+       
+        </div>
+     
+        {connected && (
+          <div className="flex justify-between w-full gap-1 mt-1">
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="beacon_outline" className="text-xs">信标过期(Min)</Label>
+              <Input id="beacon_outline" type="number" step={1}  min={1} value ={beaconOutline} onChange={(e) => setBeaconOutline(parseInt(e.currentTarget.value))} className="w-20" />
+            </div>
+            {/* <Textarea
                 rows={1}
                 value={data}
                 onChange={(e) => setData(e.currentTarget.value)}
-              />
+              /> */}
 
-              <Button
+            {/* <Button
                 onClick={(e) => {
                   e.preventDefault();
                 }}
@@ -218,7 +252,8 @@ function Bluetooth() {
               >
                 <Send className="w-4 h-4 mr-2 animate-pulse" />
                 Send
-              </Button>
+              </Button> */}
+            <div>
               <Sheet modal={false}>
                 <SheetTrigger asChild>
                   <Button variant="outline" size={"icon"}>
@@ -272,32 +307,8 @@ function Bluetooth() {
                 </SheetContent>
               </Sheet>
             </div>
-          )}
-
-          {connected ? (
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={(e) => {
-                e.preventDefault();
-                mqttClose();
-              }}
-            >
-              <Unplug color="red" className="w-10 h-6" />
-            </Button>
-          ) : (
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={(e) => {
-                e.preventDefault();
-                mqttCreate();
-              }}
-            >
-              <PlugZap color="green" className="w-10 h-6" />
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="relative h-[calc(100vh_-_80px)]  p-1 pt-1 m-1">
@@ -308,16 +319,18 @@ function Bluetooth() {
                 <div className="p-2 bg-gray-200 rounded-md">
                   <div className="flex items-center justify-between mb-1">
                     <span>
-                  
                       <b> {gw.name}</b>
-                      <code className="text-orange-400"> {gw.children?.length}</code>
+                      <code className="text-orange-400">
+                        {" "}
+                        {gw.children?.length}
+                      </code>
                     </span>
 
                     <DropdownMenu>
-                      <DropdownMenuTrigger >
-                        <button className="flex p-0.5 rounded-md bg-slate-200">
+                      <DropdownMenuTrigger>
+                        <span className="flex p-0.5 rounded-md bg-slate-200 ">
                           <Settings2 className="h-4" />
-                        </button>
+                        </span>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <DropdownMenuGroup>
@@ -327,7 +340,6 @@ function Bluetooth() {
                               onClick={(event) => {
                                 onStatusChange(gw.name, 0xffff, item.value);
                                 event.stopPropagation();
-                             
                               }}
                             >
                               {item.title}
@@ -366,6 +378,7 @@ function Bluetooth() {
                     gw.children.map((child) => (
                       <Light key={child.id} value={child.id} isSelectable>
                         <LightView
+                         beaconOutline={beaconOutline}
                           info={child}
                           onStatusChange={(status) => {
                             onStatusChange(gw.id, child.addr, status);
