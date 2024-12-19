@@ -37,6 +37,7 @@ import { Badge } from "@/components/ui/badge";
 type LightViewProps = {
   info: LightItem;
   beaconOutline: number;
+  beaconFilter: string;
   onStatusChange: (status: number) => void;
   onModeChange: (mode: number) => void;
 };
@@ -44,6 +45,7 @@ type LightViewProps = {
 function LightView({
   info,
   beaconOutline,
+  beaconFilter,
   onStatusChange,
   onModeChange,
 }: LightViewProps) {
@@ -219,9 +221,12 @@ function LightView({
               {Object.entries(info.data.beacon)
                 .sort((a, b) => a[0].localeCompare(b[0]))
                 .filter(
-                  ([_, value]) =>
+                  ([key, value]) =>
                     value.date &&
-                    differenceInMinutes(new Date(), value.date) <= beaconOutline
+                    differenceInMinutes(new Date(), value.date) <=
+                      beaconOutline &&
+                    (beaconFilter === "" ||
+                      key.toLowerCase().includes(beaconFilter.toLowerCase()))
                 )
                 .map(([key, value]) => (
                   <div

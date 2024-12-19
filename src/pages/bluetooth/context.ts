@@ -32,13 +32,13 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
       tps[5] === "up"
     ) {
       const gateway_mac = tps[4];
-      console.log(gateway_mac);
       const msg = JSON.parse(mqttMsg.payload) as Message;
-
       setHistory((list) => {
+        if (list.length > 1000) {
+          list.shift();
+        }
         return [
-          // keep last 5000
-          ...list.slice(-5000),
+          ...list,
           {
             topic: mqttMsg.topic,
             payload: msg,

@@ -55,6 +55,7 @@ function Bluetooth() {
   const [connected, setConnected] = useState(false);
 
   const [beaconOutline, setBeaconOutline] = useState(3);
+  const [beaconFilter, setBeaconFilter] = useState("");
  // const init_data = localStorageGet(STORE_KEY) || [];
   const { treeData, handleDate, history, setHistory, Cmd } =
     useBluetoothContext([]);
@@ -233,10 +234,17 @@ function Bluetooth() {
         </div>
      
         {connected && (
+         
           <div className="flex justify-between w-full gap-1 mt-1">
+             <div className="flex items-center gap-x-3">
             <div className="grid w-full max-w-sm items-center gap-1.5">
               <Label htmlFor="beacon_outline" className="text-xs">信标过期(Min)</Label>
               <Input id="beacon_outline" type="number" step={1}  min={1} value ={beaconOutline} onChange={(e) => setBeaconOutline(parseInt(e.currentTarget.value))} className="w-20" />
+            </div>
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="beacon_filter" className="text-xs">信标过滤(ID)</Label>
+              <Input id="beacon_filter" type="text"  value ={beaconFilter} onChange={(e) => setBeaconFilter(e.currentTarget.value)} className="w-24" />
+            </div>
             </div>
             {/* <Textarea
                 rows={1}
@@ -379,6 +387,7 @@ function Bluetooth() {
                       <Light key={child.id} value={child.id} isSelectable>
                         <LightView
                          beaconOutline={beaconOutline}
+                         beaconFilter={beaconFilter}
                           info={child}
                           onStatusChange={(status) => {
                             onStatusChange(gw.id, child.addr, status);
