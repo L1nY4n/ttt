@@ -20,6 +20,7 @@ import Broadcast from "@/pages/broadcast/index.tsx";
 import SerialPort from "@//pages/serialport.tsx";
 import BluetoothView from "@//pages/bluetooth/index";
 import QRAC from "@/pages/qr_ac/index.tsx";
+import Ble3d from "./pages/bluetooth/ble_3d.tsx";
 
 type SystemEvent = {
   title: string;
@@ -164,6 +165,7 @@ function Home() {
           <Route index path="/broadcast" element={<Broadcast />} />
           <Route path="/serialport" element={<SerialPort />} />
           <Route path="/bluetooth" element={<BluetoothView />} />
+          <Route path="/bluetooth1" element={<Ble3d />} />
           <Route path="/qrac" element={<QRAC />} />
         </Routes>
       </ResizablePanel>
