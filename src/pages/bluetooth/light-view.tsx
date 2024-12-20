@@ -33,6 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 type LightViewProps = {
   info: LightItem;
@@ -91,6 +92,16 @@ function LightView({
         ? mode_engineering
         : mode_induction
     : null;
+  function copyToClipboard(key: string): void {
+    navigator.clipboard.writeText(key);
+
+    toast.success(`${key} Copied!`, {
+      duration: 1000,
+
+      //   position: "top-right",
+    });
+  }
+
   return (
     <div className="relative w-64">
       <div className="flex items-center justify-between gap-2 p-1">
@@ -234,15 +245,14 @@ function LightView({
                     className="px-[3px] py-[2px] text-xs bg-slate-800 rounded-[5px] flex  items-center gap-1 w-20"
                   >
                     <div className="text-blue-300  leading-[1.2rem]">
-                      {" "}
-                      {key}{" "}
+                      <code onClick={() => copyToClipboard(key)}> {key}</code>
                     </div>
                     <div className="grid grid-rows-2 ">
-                      <div className="text-green-400 text-[0.7rem]  leading-[0.7rem]">
+                      <div className="text-green-400 text-[0.6rem]  leading-[0.6rem]">
                         {" "}
                         {value.rssi}
                       </div>
-                      <div className="text-yellow-400 text-[0.7rem]   leading-[0.7rem]">
+                      <div className="text-yellow-400 text-[0.6rem]   leading-[0.6rem]">
                         {" "}
                         {value.battery}%
                       </div>
