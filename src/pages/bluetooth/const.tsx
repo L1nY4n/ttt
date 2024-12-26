@@ -12,6 +12,7 @@ const mode_induction = (
   <PersonStanding className="w-4 h-4 text-indigo-600 " />
 );
 
+
 const modeList = [
   { title: "Running", value: 1, icon: mode_running },
   { title: "Engineering", value: 2, icon: mode_engineering },

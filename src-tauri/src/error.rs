@@ -3,7 +3,6 @@
 pub enum Error {
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
-
     #[error("serialport error: {0}")]
     SerialPort(#[from] serialport::Error),
     #[error("File is not valid utf8: {0}")]
@@ -19,8 +18,14 @@ pub enum Error {
     #[error("SendError: {0}")]
     SendError(String),
 
+    #[error("StoreError: {0}")]
+    StoreError(#[from] tauri_plugin_store::Error),
+
     #[error("Unknown")]
     Unknown,
+
+    #[error("UnImlemented:  type={0}")]
+    UnImlemented(u8),
 }
 
 // we must also implement serde::Serialize

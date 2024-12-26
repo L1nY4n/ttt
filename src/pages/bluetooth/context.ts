@@ -1,6 +1,9 @@
-import { GatewayItem } from ".//tree-view";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import { Cmd, Message, OpType, handleMessage, CmdResult } from "./protocol";
+import { listen, UnlistenFn } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
+import { GatewayItem, State } from "./types";
 
 type MqttMsg = {
   dup: boolean;
@@ -12,16 +15,51 @@ type MqttMsg = {
   date: Date;
 };
 
+
+
 interface HistoryItem extends CmdResult {
   dir: "up" | "down";
 }
 
 export default function useBluetoothContext(init_data: GatewayItem[] | null) {
+  const [state, setState] = useState<State>({
+    connected: false,
+    gateway: {},
+    light: {},
+    beacon: {},
+  });
+  const [connected, setConnected] = useState(false);
   const [treeData, setTreeData] = useState<GatewayItem[]>(
     init_data === null ? [] : init_data
   );
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  let avoidExtraCall = false;
+  let unlisten: UnlistenFn | undefined = undefined;
+  useEffect(() => {
+    if (!avoidExtraCall) {
+      avoidExtraCall = true;
+      listen("mqtt_msg", ({ payload }) => {
+        handleDate(payload);
+      }).then((v) => {
+        unlisten = v;
+      });
+
+      invoke("mqtt_state").then((res) => {
+        setState(res as State);
+        console.log(res);
+        const { connected } = res as { connected: boolean };
+
+        setConnected(connected);
+      });
+    }
+
+    return () => {
+      !!unlisten && unlisten();
+    };
+  }, []);
+
   const handleDate = (payload: unknown) => {
     const mqttMsg = payload as MqttMsg;
     const tps = mqttMsg.topic.split("/");
@@ -82,6 +120,11 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
                 addr: msg.src_addr!,
                 data: updater({}),
                 date: mqttMsg.date,
+                position: {
+                  x: 0,
+                  y: 0,
+                  z: 0
+                }
               });
               list[index].children?.sort((a, b) => {
                 return a.addr - b.addr;
@@ -101,7 +144,7 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
 
         if (msg.opcode === OpType.LIGHT_HEATBEAT_DATA) {
         } else if (msg.opcode === OpType.GW_HEATBEAT_DATA) {
-          list[index].ipaddr = msg.ipaddr;
+          list[index].ip = msg.ipaddr;
         } else {
           if (belongGw) {
             list[index] = {
@@ -134,6 +177,9 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
   });
 
   return {
+    connected,
+    state,
+    setConnected,
     treeData,
     setTreeData,
     history,

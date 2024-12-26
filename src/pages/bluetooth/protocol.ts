@@ -1,4 +1,5 @@
-import { DataProps } from "./tree-view";
+import { DataProps } from "./types";
+
 
 export type Message = {
   opcode: number;

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,10 +11,9 @@ import {
   Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-//import { Textarea } from "@/components/ui/textarea";
 
 import { invoke } from "@tauri-apps/api/core";
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
+
 import { toast } from "sonner";
 
 import { Tree, Gateway, CollapseButton, Light } from "./tree-view";
@@ -43,49 +41,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { statusList } from "./const";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { Positon } from "./types";
 
-//const STORE_KEY = "LIGHT_TREE";
+import { BeaconView } from "./beacon";
 
 function Bluetooth() {
- // const [data, setData] = useState("");
   const [addr, setAddr] = useState("192.168.100.64");
   const [port, setPort] = useState(1883);
   const [username, setUsername] = useState("hyz");
   const [password, setPassword] = useState("hyz2017@)!&");
-  const [connected, setConnected] = useState(false);
 
   const [beaconOutline, setBeaconOutline] = useState(3);
   const [beaconFilter, setBeaconFilter] = useState("");
- // const init_data = localStorageGet(STORE_KEY) || [];
-  const { treeData, handleDate, history, setHistory, Cmd } =
+
+  const { state, connected, setConnected, treeData, history, setHistory, Cmd } =
     useBluetoothContext([]);
-
-  let avoidExtraCall = false;
-  let unlisten: UnlistenFn | undefined = undefined;
-  useEffect(() => {
-    if (!avoidExtraCall) {
-      avoidExtraCall = true;
-      listen("mqtt_msg", ({ payload }) => {
-        handleDate(payload);
-      }).then((v) => {
-        unlisten = v;
-      });
-    }
-
-    invoke("mqtt_state").then((res) => {
-      console.log(res);
-      const { connected } = res as { connected: boolean };
-
-      setConnected(connected as boolean);
-    });
-
-    return () => {
-      !!unlisten && unlisten();
-      if (treeData.length > 0) {
-       // localStorageSet(STORE_KEY, treeData);
-      }
-    };
-  }, []);
 
   function mqttCreate() {
     const clientId = "ttt_" + Math.random().toString(36).substr(2, 9);
@@ -161,14 +132,21 @@ function Bluetooth() {
     mqttPublish(topic, JSON.stringify(payload));
   }
 
+  function onLigthUpdate(addr: number, name: string, position: Positon) {
+    invoke("update_light", { addr, name, position }).then((res) => {
+      console.log(res);
+    });
+  }
+
   function clearHistory() {
     setHistory([]);
   }
 
+
   return (
     <div className="flex flex-col flex-grow h-screen">
       <div className="bg-background/95 p-1 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">
-        <div >
+        <div>
           {!connected ? (
             <div className="flex justify-between w-full gap-3 px-1">
               <div className="flex items-center gap-x-1">
@@ -230,21 +208,39 @@ function Bluetooth() {
               </Button>
             </div>
           )}
-       
         </div>
-     
-        {connected && (
-         
+
+   
           <div className="flex justify-between w-full gap-1 mt-1">
-             <div className="flex items-center gap-x-3">
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="beacon_outline" className="text-xs">信标过期(Min)</Label>
-              <Input id="beacon_outline" type="number" step={1}  min={1} value ={beaconOutline} onChange={(e) => setBeaconOutline(parseInt(e.currentTarget.value))} className="w-20" />
-            </div>
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="beacon_filter" className="text-xs">信标过滤(ID)</Label>
-              <Input id="beacon_filter" type="text"  value ={beaconFilter} onChange={(e) => setBeaconFilter(e.currentTarget.value)} className="w-24" />
-            </div>
+            <div className="flex items-center gap-x-3">
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="beacon_outline" className="text-xs">
+                  信标过期(Min)
+                </Label>
+                <Input
+                  id="beacon_outline"
+                  type="number"
+                  step={1}
+                  min={1}
+                  value={beaconOutline}
+                  onChange={(e) =>
+                    setBeaconOutline(parseInt(e.currentTarget.value))
+                  }
+                  className="w-20"
+                />
+              </div>
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="beacon_filter" className="text-xs">
+                  信标过滤(ID)
+                </Label>
+                <Input
+                  id="beacon_filter"
+                  type="text"
+                  value={beaconFilter}
+                  onChange={(e) => setBeaconFilter(e.currentTarget.value)}
+                  className="w-24"
+                />
+              </div>
             </div>
             {/* <Textarea
                 rows={1}
@@ -316,21 +312,39 @@ function Bluetooth() {
               </Sheet>
             </div>
           </div>
-        )}
+        
       </div>
-
-      <div className="relative h-[calc(100vh_-_80px)]  p-1 pt-1 m-1">
+      <div>
+        <div className="flex flex-wrap gap-1 p-4 ">
+          {Object.entries(state.beacon)
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .filter(
+              ([key, _]) =>
+                beaconFilter === "" ||
+                key.toLowerCase().includes(beaconFilter.toLowerCase())
+            )
+            .map(([key, value]) => (
+            <BeaconView key={key} info={value} />
+        
+            ))}
+        </div>
+      </div>
+      <div className="relative h-[calc(100vh_-_240px)]  p-1 pt-1 m-1">
         <ScrollArea className="h-full">
-          <Tree elements={treeData}>
-            {treeData.map((gw) => {
+          <Tree elements={state}>
+            {Object.entries(state.gateway).map(([gw_key, gw]) => {
               const title = (
                 <div className="p-2 bg-gray-200 rounded-md">
                   <div className="flex items-center justify-between mb-1">
                     <span>
-                      <b> {gw.name}</b>
+                      <b> {gw_key}</b>
                       <code className="text-orange-400">
                         {" "}
-                        {gw.children?.length}
+                        {
+                          Object.values(state.light).filter(
+                            (light) => light.gateway === gw_key
+                          ).length
+                        }
                       </code>
                     </span>
 
@@ -363,14 +377,12 @@ function Bluetooth() {
 
                   <div>
                     <div className="flex items-center text-xs">
-                      <i className="text-xs text-neutral-600">
-                        {gw.data.dev_model}
-                      </i>
+                      <i className="text-xs text-neutral-600">{gw.model}</i>
                       <Separator className="mx-1" orientation="vertical" />
-                      <i className="text-blue-400">{gw.ipaddr} </i>
+                      <i className="text-blue-400">{gw.ip} </i>
                       <a
                         target="_blank"
-                        href={"http://" + gw.ipaddr}
+                        href={"http://" + gw.ip}
                         className="ml-1"
                       >
                         <SquareArrowOutUpRight className="w-3 h-3" />
@@ -380,20 +392,26 @@ function Bluetooth() {
                 </div>
               );
               return (
-                <Gateway element={title} value={gw.id} key={gw.id}>
-                  {gw.children &&
-                    gw.children.length > 0 &&
-                    gw.children.map((child) => (
-                      <Light key={child.id} value={child.id} isSelectable>
+                <Gateway element={title} value={gw_key} key={gw_key}>
+                  {Object.values(state.light)
+                    .filter((light) => light.gateway === gw_key)
+                    .map((light) => (
+                      <Light
+                        key={light.addr}
+                        value={light.addr.toString()}
+                        isSelectable
+                      >
                         <LightView
-                         beaconOutline={beaconOutline}
-                         beaconFilter={beaconFilter}
-                          info={child}
+                 
+                          info={light}
                           onStatusChange={(status) => {
-                            onStatusChange(gw.id, child.addr, status);
+                            onStatusChange(gw_key, light.addr, status);
                           }}
                           onModeChange={(mode) => {
-                            onModeChange(gw.id, child.addr, mode);
+                            onModeChange(gw_key, light.addr, mode);
+                          }}
+                          onUpdate={(name, pos) => {
+                            onLigthUpdate(light.addr, name, pos);
                           }}
                         />
                       </Light>

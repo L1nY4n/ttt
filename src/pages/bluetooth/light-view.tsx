@@ -10,20 +10,7 @@ import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { differenceInMinutes } from "date-fns/differenceInMinutes";
 
 import { zhCN } from "date-fns/locale";
-import {
-  ArrowDownUp,
-  BluetoothOff,
-  Construction,
-  Lightbulb,
-  LightbulbOff,
-  PersonStanding,
-  Router,
-  Settings,
-  Settings2,
-  TrainFront,
-  Zap,
-} from "lucide-react";
-import { LightItem } from "./tree-view";
+import { ArrowDownUp, Router, Settings, Settings2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -33,73 +20,60 @@ import {
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { LightItem, Positon } from "./types";
+import {
+  mode_engineering,
+  mode_induction,
+  mode_running,
+  modeList,
+  status_flash,
+  status_off,
+  status_on,
+  statusList,
+} from "./const";
+import { useState } from "react";
+
 
 type LightViewProps = {
   info: LightItem;
-  beaconOutline: number;
-  beaconFilter: string;
   onStatusChange: (status: number) => void;
   onModeChange: (mode: number) => void;
+  onUpdate: (name: string, position: Positon) => void;
 };
 
 function LightView({
   info,
-  beaconOutline,
-  beaconFilter,
   onStatusChange,
   onModeChange,
+  onUpdate,
 }: LightViewProps) {
-  const status_on = <Lightbulb className="w-4 h-4 text-orange-400" />;
-  const status_off = <LightbulbOff className="w-4 h-4 text-gray-600" />;
-  const status_flash = (
-    <Zap className="w-4 h-4 text-purple-600 duration-150 animate-pulse" />
+  const [name, setName] = useState(info.name);
+  const [position, setPosition] = useState(
+    info.position || { x: 0, y: 0, z: 0 }
   );
+  const StatusIcon =
+    info.status === 2
+      ? status_flash
+      : info.status === 1
+        ? status_on
+        : status_off;
 
-  const mode_running = <TrainFront className="w-4 h-4 text-green-500" />;
-  const mode_engineering = <Construction className="w-4 h-4 text-slate-600" />;
-  const mode_induction = (
-    <PersonStanding className="w-4 h-4 text-indigo-600 " />
-  );
-
-  const modeList = [
-    { title: "Running", value: 1, icon: mode_running },
-    { title: "Engineering", value: 2, icon: mode_engineering },
-    { title: "Induction", value: 3, icon: mode_induction },
-  ];
-  const statusList = [
-    { title: "On", value: 1, icon: status_on },
-    { title: "Off", value: 0, icon: status_off },
-    { title: "Flash", value: 2, icon: status_flash },
-  ];
-
-  const StatusIcon = info.data ? (
-    info.data.status === 2 ? (
-      status_flash
-    ) : info.data.status === 1 ? (
-      status_on
-    ) : (
-      status_off
-    )
-  ) : (
-    <BluetoothOff className="w-4 h-4 text-red-600" />
-  );
-
-  const modeIcon = info.data
-    ? info.data.mode === 1
+  const modeIcon =
+    info.mode === 1
       ? mode_running
-      : info.data.mode === 2
+      : info.mode === 2
         ? mode_engineering
-        : mode_induction
-    : null;
-  function copyToClipboard(key: string): void {
-    navigator.clipboard.writeText(key);
+        : mode_induction;
 
-    toast.success(`${key} Copied!`, {
-      duration: 1000,
+  function onPositionChange(position: Positon) {
+    setPosition(position);
+    onUpdate(name, position);
+  }
 
-      //   position: "top-right",
-    });
+  function onNameChange(name: string) {
+    setName(name);
+    onUpdate(name, position);
   }
 
   return (
@@ -114,7 +88,15 @@ function LightView({
                 : "text-gray-300"
             )}
           />
-          <div className="font-bold">{info.addr.toString(16)}</div>
+          <div className="font-bold">
+            <span>{info.addr.toString(16).toUpperCase()}</span>
+            <sup className="text-xs text-orange-500">
+              {info.version.toString(16)}
+            </sup>
+            <sub className="text-xs text-blue-500">
+              {info.name}
+            </sub>
+          </div>
           <div className="text-[75%] text-muted-foreground">
             {formatDistanceToNow(info.date, {
               locale: zhCN,
@@ -129,7 +111,7 @@ function LightView({
               <button className="flex p-0.5 rounded-sm bg-slate-200">
                 {StatusIcon}
                 <Separator orientation="vertical" />
-                <Settings2 className="h-4" />
+            
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -159,7 +141,7 @@ function LightView({
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
                     <div className="font-semibold">
-                      <Badge>{info.name}</Badge>
+                      <Badge>{info.addr}</Badge>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -191,7 +173,7 @@ function LightView({
                   <div
                     className={cn(
                       "ml-auto text-xs",
-                      info.data?.status === 3
+                      info.status === 3
                         ? "text-foreground"
                         : "text-muted-foreground"
                     )}
@@ -205,63 +187,67 @@ function LightView({
                 </div>
                 <div className="text-xs font-medium">{info.name}</div>
               </div>
-              <div className="text-xs line-clamp-2 text-muted-foreground">
-                {info.name}
+              <div className="flex items-center gap-1">
+                <code className="font-semibold">Name:</code>
+                <Input
+                  type="text"
+                  value={name}
+                  className="w-1/3 h-7 "
+                  onChange={(event) => {
+                    onNameChange(event.target.value);
+                  }}
+                />
               </div>
-
-              <div className="flex items-center gap-2">
-                <Badge variant={"outline"}>
-                  version: {info.data?.version?.toString(16)}
-                </Badge>
+              <div className="text-xs ">
+                <code className="font-semibold">pos:</code>
+                <div className="flex gap-1">
+                  <div className="flex items-center gap-1">
+                    X:{" "}
+                    <Input
+                      type="number"
+                      value={position.x}
+                      className="h-7 "
+                      onChange={(event) => {
+                        onPositionChange({
+                          ...position,
+                          x: parseFloat(event.target.value),
+                        });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    Y:
+                    <Input
+                      type="number"
+                      value={position.y}
+                      className="h-7 "
+                      onChange={(event) => {
+                        onPositionChange({
+                          ...position,
+                          y: parseFloat(event.target.value),
+                        });
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    Z:{" "}
+                    <Input
+                      type="number"
+                      value={position.z}
+                      className="h-7"
+                      onChange={(event) => {
+                        onPositionChange({
+                          ...position,
+                          z: parseFloat(event.target.value),
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </PopoverContent>
           </Popover>
         </div>
-      </div>
-
-      <div>
-        <div>
-          <div className="flex items-center "></div>
-        </div>
-      </div>
-      <div>
-        {info.data?.beacon && (
-          <div className="p-1 mt-1">
-            <Separator />
-            <div className="flex flex-wrap gap-1 min-h-4">
-              {Object.entries(info.data.beacon)
-                .sort((a, b) => a[0].localeCompare(b[0]))
-                .filter(
-                  ([key, value]) =>
-                    value.date &&
-                    differenceInMinutes(new Date(), value.date) <=
-                      beaconOutline &&
-                    (beaconFilter === "" ||
-                      key.toLowerCase().includes(beaconFilter.toLowerCase()))
-                )
-                .map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="px-[3px] py-[2px] text-xs bg-slate-800 rounded-[5px] flex  items-center gap-1 w-20"
-                  >
-                    <div className="text-blue-300  leading-[1.2rem]">
-                      <code onClick={() => copyToClipboard(key)}> {key}</code>
-                    </div>
-                    <div className="grid grid-rows-2 ">
-                      <div className="text-green-400 text-[0.6rem]  leading-[0.6rem]">
-                        {" "}
-                        {value.rssi}
-                      </div>
-                      <div className="text-yellow-400 text-[0.6rem]   leading-[0.6rem]">
-                        {" "}
-                        {value.battery}%
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -1,14 +1,10 @@
 use tauri::Manager;
 pub mod broadcast;
-pub mod mqtt;
+pub mod ble;
 pub mod qr_ac;
 
 #[cfg(not(target_os = "ios"))]
 pub mod serialport;
-
-
-
-
 
 #[tauri::command]
 pub fn check_update(app: tauri::AppHandle) {
@@ -16,4 +12,3 @@ pub fn check_update(app: tauri::AppHandle) {
     let _ = webview.show();
     let _ = webview.set_focus();
 }
-

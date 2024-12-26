@@ -14,47 +14,7 @@ import React, {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
-
-type GatewayItem = {
-  id: string;
-  name: string;
-  addr: number,
-  ipaddr?: string,
-  isSelectable?: boolean;
-  date: Date;
-  data: {
-    [key: string]: any  
-}
-  children?: LightItem[];
-};
-
-type LightItem = {
-  id: string;
-  name: string;
-  addr: number,
-  isSelectable?: boolean;
-  date: Date;
-  data: DataProps
-  children?: GatewayItem[];
-};
-
-
-
-export type DataProps = {
-  status?: number;
-  mode?: number;
-  version?: number;
-  beacon?: {
-    [key: string]: {
-      rssi: number,
-      battery: number,
-      date?: Date
-    }
-  }
-  [key: string]: any
-}
-
-
+import { GatewayItem, State } from "./types";
 
 
 type TreeContextProps = {
@@ -86,7 +46,7 @@ type Direction = "rtl" | "ltr" | undefined;
 type TreeViewProps = {
   initialSelectedId?: string;
   indicator?: boolean;
-  elements?: GatewayItem[];
+  elements?:  State;
   initialExpendedItems?: string[];
   openIcon?: React.ReactNode;
   closeIcon?: React.ReactNode;
@@ -129,7 +89,7 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
     }, []);
 
     const expandSpecificTargetedElements = useCallback(
-      (elements?: GatewayItem[], selectId?: string) => {
+      (elements?: State, selectId?: string) => {
         if (!elements || !selectId) return;
         const findParent = (
           currentElement: GatewayItem,
@@ -158,7 +118,7 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
             });
           }
         };
-        elements.forEach((element) => {
+        Object.values(elements.gateway).forEach((element) => {
           findParent(element);
         });
       },
@@ -427,4 +387,4 @@ const CollapseButton = forwardRef<
 
 CollapseButton.displayName = "CollapseButton";
 
-export { Tree, CollapseButton, Gateway,Light, type GatewayItem, type LightItem  };
+export { Tree, CollapseButton, Gateway,Light  };

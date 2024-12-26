@@ -21,23 +21,34 @@ tauri = { version = "2.1.1", features = [
     "image-ico",
     "image-png",
 ] }
-tauri-plugin-shell ="2.2.0"
+tauri-plugin-shell = "2.2.0"
 serde = { version = "1.0.216", features = ["derive"] }
 serde_json = "1.0.133"
-serde_with = {version = "3.11.0",features = ["base64"] }
+serde_with = { version = "3.11.0", features = ["base64"] }
 socket2 = "0.5.8"
-tokio = { version ="1.42.0", features = ["full"] }
-thiserror = "2.0.7"
-chrono = {version="0.4.39",features= ["serde"] }
+tokio = { version = "1.42.0", features = ["full"] }
+thiserror = "2.0.8"
+chrono = { version = "0.4.39", features = ["serde"] }
 local-ip-address = "0.6.3"
 tauri-plugin-process = "2"
 anyhow = "1.0.94"
+tauri-plugin-persisted-scope = "2"
+tauri-plugin-store = "2"
+tauri-plugin-log = "2"
+log = "0.4.22"
+tauri-plugin-fs = "2"
+
+ndarray = "0.16.1"
+nalgebra = "0.33.2"
+argmin = {version = "0.10.0"}
+hex = "0.4.3"
+bytes = "1.9.0"
+rand = "0.8.5"
 
 [target.'cfg(not(target_arch = "ios"))'.dependencies]
-serialport =  {version="4.6.1",features= ["serde"] }
-
+serialport = { version = "4.6.1", features = ["serde"] }
 rumqttc = "0.24.0"
-bytes="1.9.0"
+bytes = "1.9.0"
 crc = "3.2.1"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]

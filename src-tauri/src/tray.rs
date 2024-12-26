@@ -2,7 +2,6 @@ use anyhow::Result;
 use tauri::menu::Menu;
 use tauri::menu::{MenuItem, PredefinedMenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::tray::{MouseButton, MouseButtonState, TrayIconEvent};
 use tauri::Manager;
 
 pub fn create_tray(app: &mut tauri::App) -> Result<()> {
@@ -22,45 +21,45 @@ pub fn create_tray(app: &mut tauri::App) -> Result<()> {
         .build(app)?;
 
     let app_clone = app.app_handle().clone();
-    tray_menu.on_tray_icon_event(move |_tray, event| {
-        if let TrayIconEvent::Click {
-            button: MouseButton::Left,
-            button_state: MouseButtonState::Up,
-            ..
-        } = event
-        {
-            let webview = app_clone.get_webview_window("main").unwrap();
+    // tray_menu.on_tray_icon_event(move |_tray, event| {
+    //     if let TrayIconEvent::Click {
+    //         button: MouseButton::Left,
+    //         button_state: MouseButtonState::Up,
+    //         ..
+    //     } = event
+    //     {
+    //         let webview = app_clone.get_webview_window("main").unwrap();
 
-            if webview.is_visible().unwrap() {
-                let webview_clone = webview.clone();
-                #[cfg(target_os = "macos")]
-                {
-                    tauri::async_runtime::spawn(async move {
-                        if !webview_clone.is_minimized().unwrap() {
-                            webview_clone.minimize().unwrap();
-                            tokio::time::sleep(std::time::Duration::from_millis(400)).await;
-                        }
-                        let _ = webview.hide();
-                    });
-                }
-                #[cfg(not(target_os = "macos"))]
-                {
-                    let _ = webview.minimize();
-                    let _ = webview.hide();
-                }
-            } else {
-                #[cfg(not(target_os = "macos"))]
-                {
-                    let _ = webview.show();
-                }
+    //         if webview.is_visible().unwrap() {
+    //             let webview_clone = webview.clone();
+    //             #[cfg(target_os = "macos")]
+    //             {
+    //                 tauri::async_runtime::spawn(async move {
+    //                     if !webview_clone.is_minimized().unwrap() {
+    //                         webview_clone.minimize().unwrap();
+    //                         tokio::time::sleep(std::time::Duration::from_millis(400)).await;
+    //                     }
+    //                     let _ = webview.hide();
+    //                 });
+    //             }
+    //             #[cfg(not(target_os = "macos"))]
+    //             {
+    //                 let _ = webview.minimize();
+    //                 let _ = webview.hide();
+    //             }
+    //         } else {
+    //             #[cfg(not(target_os = "macos"))]
+    //             {
+    //                 let _ = webview.show();
+    //             }
 
-                if webview.is_minimized().unwrap() {
-                    let _ = webview.unminimize();
-                }
-                let _ = webview.set_focus();
-            }
-        }
-    });
+    //             if webview.is_minimized().unwrap() {
+    //                 let _ = webview.unminimize();
+    //             }
+    //             let _ = webview.set_focus();
+    //         }
+    //     }
+    // });
 
     tray_menu.on_menu_event(move |h, event| match event.id.as_ref() {
         "quit" => h.exit(0),
