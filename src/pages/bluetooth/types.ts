@@ -1,9 +1,3 @@
-export type State = {
-  connected: boolean;
-  gateway: { [key: string]: GatewayItem };
-  light: { [key: string]: LightItem };
-  beacon: { [key: string]: Beacon };
-};
 
 export type GatewayItem = {
   name: string;
@@ -37,15 +31,6 @@ export type Positon = {
   z: number;
 };
 
-export type Beacon = {
-  id: number;
-  rssi: number;
-  battery: number;
-  date?: Date;
-  rssi_map: {
-    [key: number]: [Positon, number, Date];
-  };
-};
 
 export type DataProps = {
   status?: number;

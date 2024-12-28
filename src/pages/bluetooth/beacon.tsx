@@ -8,12 +8,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Beacon } from "./types";
+
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { zhCN } from "date-fns/locale";
+import { BeaconItem } from "@/types";
 
 function copyToClipboard(key: string): void {
   navigator.clipboard.writeText(key);
@@ -25,7 +26,7 @@ function copyToClipboard(key: string): void {
   });
 }
 
-export function BeaconView({ info }: { info: Beacon }) {
+export function BeaconView({ info }: { info: BeaconItem }) {
   return (
     <Badge className="px-[3px] py-[3px] text-xs  flex  items-center gap-1 w-21 justify-between cursor-pointer">
       <div className="  leading-[1.2rem]">
@@ -50,10 +51,10 @@ export function BeaconView({ info }: { info: Beacon }) {
           <DialogTrigger asChild>
             <MapPin className="w-4 h-4 " />
           </DialogTrigger>
-          <DialogContent className="]">
+          <DialogContent className="">
             <DialogHeader>
               <DialogTitle> {info.id.toString(16).toUpperCase()} </DialogTitle>
-              <DialogDescription>rssi map of lights</DialogDescription>
+              <DialogDescription>{info.position &&    `   [${info.position .x} , ${info.position .y} , ${info.position .z}]`}</DialogDescription>
             </DialogHeader>
             <div className="">
               {Object.entries(info.rssi_map).map(
@@ -66,7 +67,7 @@ export function BeaconView({ info }: { info: Beacon }) {
                       </Badge>
                       <Badge className="text-xs ">{rssi}</Badge>
                       <Badge className="text-xs">
-                        {date?.toLocaleString()} ----
+                        
                         {formatDistanceToNow(date, {
                           locale: zhCN,
                           addSuffix: true,

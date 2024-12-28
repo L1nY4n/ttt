@@ -9,6 +9,7 @@ import {
   ArrowBigDownDash,
   SquareArrowOutUpRight,
   Settings2,
+  Rotate3DIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,6 +46,7 @@ import { useState } from "react";
 import { Positon } from "./types";
 
 import { BeaconView } from "./beacon";
+import Ble3d from "./3d/ble_3d";
 
 function Bluetooth() {
   const [addr, setAddr] = useState("192.168.100.64");
@@ -55,8 +57,16 @@ function Bluetooth() {
   const [beaconOutline, setBeaconOutline] = useState(3);
   const [beaconFilter, setBeaconFilter] = useState("");
 
-  const { state, connected, setConnected, treeData, history, setHistory, Cmd } =
-    useBluetoothContext([]);
+  const {
+    state,
+    setState,
+    connected,
+    setConnected,
+    treeData,
+    history,
+    setHistory,
+    Cmd,
+  } = useBluetoothContext([]);
 
   function mqttCreate() {
     const clientId = "ttt_" + Math.random().toString(36).substr(2, 9);
@@ -133,8 +143,15 @@ function Bluetooth() {
   }
 
   function onLigthUpdate(addr: number, name: string, position: Positon) {
-    invoke("update_light", { addr, name, position }).then((res) => {
-      console.log(res);
+    invoke("update_light", { addr, name, position }).then((_) => {
+      setState((prev) => {
+        const light = prev.light[addr];
+        if (light) {
+          light.name = name;
+          light.position = position;
+        }
+        return prev;
+      });
     });
   }
 
@@ -142,9 +159,8 @@ function Bluetooth() {
     setHistory([]);
   }
 
-
   return (
-    <div className="flex flex-col flex-grow h-screen">
+    <div className="relative flex flex-col flex-grow h-screen">
       <div className="bg-background/95 p-1 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">
         <div>
           {!connected ? (
@@ -209,9 +225,10 @@ function Bluetooth() {
             </div>
           )}
         </div>
-
-   
-          <div className="flex justify-between w-full gap-1 mt-1">
+      </div>
+      <div>
+        <div>
+          <div className="flex justify-between w-full gap-1 px-2 mt-1">
             <div className="flex items-center gap-x-3">
               <div className="grid w-full max-w-sm items-center gap-1.5">
                 <Label htmlFor="beacon_outline" className="text-xs">
@@ -226,10 +243,10 @@ function Bluetooth() {
                   onChange={(e) =>
                     setBeaconOutline(parseInt(e.currentTarget.value))
                   }
-                  className="w-20"
+                  className="w-20 h-7"
                 />
               </div>
-              <div className="grid w-full max-w-sm items-center gap-1.5">
+              <div className="grid items-center w-full max-w-sm gap-1 ">
                 <Label htmlFor="beacon_filter" className="text-xs">
                   信标过滤(ID)
                 </Label>
@@ -238,29 +255,25 @@ function Bluetooth() {
                   type="text"
                   value={beaconFilter}
                   onChange={(e) => setBeaconFilter(e.currentTarget.value)}
-                  className="w-24"
+                  className="w-24 h-7"
                 />
               </div>
             </div>
-            {/* <Textarea
-                rows={1}
-                value={data}
-                onChange={(e) => setData(e.currentTarget.value)}
-              /> */}
-
-            {/* <Button
-                onClick={(e) => {
-                  e.preventDefault();
-                }}
-                variant="outline"
-              >
-                <Send className="w-4 h-4 mr-2 animate-pulse" />
-                Send
-              </Button> */}
-            <div>
+            <div className="flex items-center mr-2 gap-x-2">
               <Sheet modal={false}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size={"icon"}>
+                  <Button size={"icon"} className="w-6 h-6">
+                    <Rotate3DIcon className="w-4 h-4 animate-spin" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-full h-screen sm:max-w-full ">
+                  <Ble3d  lights={Object.values(state.light)} beacons={Object.values(state.beacon)} />
+                </SheetContent>
+              </Sheet>
+
+              <Sheet modal={false}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" className="w-6 h-6" size={"icon"}>
                     <List className="w-4 h-4" />
                   </Button>
                 </SheetTrigger>
@@ -312,117 +325,115 @@ function Bluetooth() {
               </Sheet>
             </div>
           </div>
-        
-      </div>
-      <div>
-        <div className="flex flex-wrap gap-1 p-4 ">
-          {Object.entries(state.beacon)
-            .sort((a, b) => a[0].localeCompare(b[0]))
-            .filter(
-              ([key, _]) =>
-                beaconFilter === "" ||
-                key.toLowerCase().includes(beaconFilter.toLowerCase())
-            )
-            .map(([key, value]) => (
-            <BeaconView key={key} info={value} />
-        
-            ))}
         </div>
-      </div>
-      <div className="relative h-[calc(100vh_-_240px)]  p-1 pt-1 m-1">
-        <ScrollArea className="h-full">
-          <Tree elements={state}>
-            {Object.entries(state.gateway).map(([gw_key, gw]) => {
-              const title = (
-                <div className="p-2 bg-gray-200 rounded-md">
-                  <div className="flex items-center justify-between mb-1">
-                    <span>
-                      <b> {gw_key}</b>
-                      <code className="text-orange-400">
-                        {" "}
-                        {
-                          Object.values(state.light).filter(
-                            (light) => light.gateway === gw_key
-                          ).length
-                        }
-                      </code>
-                    </span>
+        <div>
+          <div className="flex flex-wrap gap-1 p-4 ">
+            {Object.entries(state.beacon)
+              .sort((a, b) => a[0].localeCompare(b[0]))
+              .filter(
+                ([key, _]) =>
+                  beaconFilter === "" ||
+                  key.toLowerCase().includes(beaconFilter.toLowerCase())
+              )
+              .map(([key, value]) => (
+                <BeaconView key={key} info={value} />
+              ))}
+          </div>
+        </div>
+        <div className="relative h-[calc(100vh_-_240px)]  p-1 pt-1 m-1">
+          <ScrollArea className="h-full">
+            <Tree elements={state}>
+              {Object.entries(state.gateway).map(([gw_key, gw]) => {
+                const title = (
+                  <div className="p-2 bg-gray-200 rounded-md">
+                    <div className="flex items-center justify-between mb-1">
+                      <span>
+                        <b> {gw_key}</b>
+                        <code className="text-orange-400">
+                          {" "}
+                          {
+                            Object.values(state.light).filter(
+                              (light) => light.gateway === gw_key
+                            ).length
+                          }
+                        </code>
+                      </span>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <span className="flex p-0.5 rounded-md bg-slate-200 ">
-                          <Settings2 className="h-4" />
-                        </span>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuGroup>
-                          {statusList.map((item) => (
-                            <DropdownMenuItem
-                              key={item.value}
-                              onClick={(event) => {
-                                onStatusChange(gw.name, 0xffff, item.value);
-                                event.stopPropagation();
-                              }}
-                            >
-                              {item.title}
-                              <DropdownMenuShortcut>
-                                {item.icon}
-                              </DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <span className="flex p-0.5 rounded-md bg-slate-200 ">
+                            <Settings2 className="h-4" />
+                          </span>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuGroup>
+                            {statusList.map((item) => (
+                              <DropdownMenuItem
+                                key={item.value}
+                                onClick={(event) => {
+                                  onStatusChange(gw.name, 0xffff, item.value);
+                                  event.stopPropagation();
+                                }}
+                              >
+                                {item.title}
+                                <DropdownMenuShortcut>
+                                  {item.icon}
+                                </DropdownMenuShortcut>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
 
-                  <div>
-                    <div className="flex items-center text-xs">
-                      <i className="text-xs text-neutral-600">{gw.model}</i>
-                      <Separator className="mx-1" orientation="vertical" />
-                      <i className="text-blue-400">{gw.ip} </i>
-                      <a
-                        target="_blank"
-                        href={"http://" + gw.ip}
-                        className="ml-1"
-                      >
-                        <SquareArrowOutUpRight className="w-3 h-3" />
-                      </a>
+                    <div>
+                      <div className="flex items-center text-xs">
+                        <i className="text-xs text-neutral-600">{gw.model}</i>
+                        <Separator className="mx-1" orientation="vertical" />
+                        <i className="text-blue-400">{gw.ip} </i>
+                        <a
+                          target="_blank"
+                          href={"http://" + gw.ip}
+                          className="ml-1"
+                        >
+                          <SquareArrowOutUpRight className="w-3 h-3" />
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-              return (
-                <Gateway element={title} value={gw_key} key={gw_key}>
-                  {Object.values(state.light)
-                    .filter((light) => light.gateway === gw_key)
-                    .map((light) => (
-                      <Light
-                        key={light.addr}
-                        value={light.addr.toString()}
-                        isSelectable
-                      >
-                        <LightView
-                 
-                          info={light}
-                          onStatusChange={(status) => {
-                            onStatusChange(gw_key, light.addr, status);
-                          }}
-                          onModeChange={(mode) => {
-                            onModeChange(gw_key, light.addr, mode);
-                          }}
-                          onUpdate={(name, pos) => {
-                            onLigthUpdate(light.addr, name, pos);
-                          }}
-                        />
-                      </Light>
-                    ))}
-                </Gateway>
-              );
-            })}
+                );
+                return (
+                  <Gateway element={title} value={gw_key} key={gw_key}>
+                    {Object.values(state.light)
+                      .filter((light) => light.gateway === gw_key)
+                      .map((light) => (
+                        <Light
+                          key={light.addr}
+                          value={light.addr.toString()}
+                          isSelectable
+                        >
+                          <LightView
+                            info={light}
+                            onStatusChange={(status) => {
+                              onStatusChange(gw_key, light.addr, status);
+                            }}
+                            onModeChange={(mode) => {
+                              onModeChange(gw_key, light.addr, mode);
+                            }}
+                            onUpdate={(name, pos) => {
+                              onLigthUpdate(light.addr, name, pos);
+                            }}
+                          />
+                        </Light>
+                      ))}
+                  </Gateway>
+                );
+              })}
 
-            <CollapseButton elements={treeData} />
-          </Tree>
-        </ScrollArea>
+              <CollapseButton elements={treeData} />
+            </Tree>
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );

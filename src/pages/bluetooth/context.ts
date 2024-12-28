@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Cmd, Message, OpType, handleMessage, CmdResult } from "./protocol";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
-import { GatewayItem, State } from "./types";
+import { GatewayItem, State } from "@/types";
 
 type MqttMsg = {
   dup: boolean;
@@ -47,11 +47,9 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
       });
 
       invoke("mqtt_state").then((res) => {
-        setState(res as State);
-        console.log(res);
-        const { connected } = res as { connected: boolean };
-
-        setConnected(connected);
+        const s = res as State;
+        setState(s);
+        setConnected(s.connected);
       });
     }
 
@@ -179,12 +177,12 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
   return {
     connected,
     state,
+    setState,
     setConnected,
     treeData,
     setTreeData,
     history,
     setHistory,
-    handleDate,
     Cmd: CmdWithHistory,
   };
 }

@@ -50,7 +50,7 @@ impl LocationCalculator {
                    + beacon.position.magnitude_squared();
         }
 
-        // 使用最小二乘法求解超定方程组
+        
         match a.svd(true, true).solve(&b, 1e-10) {
             Ok(x) => Some(Vector3::new(x[0], x[1], x[2])),
             Err(_) => None

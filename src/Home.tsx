@@ -128,7 +128,7 @@ function Home() {
             },
             {
               title: "BLE",
-              path: "/bluetooth",
+              path: "/ble",
               label: "",
               icon: BluetoothIcon,
               variant: "ghost",
@@ -163,7 +163,7 @@ function Home() {
         <Routes>
           <Route index path="/broadcast" element={<Broadcast />} />
           <Route path="/serialport" element={<SerialPort />} />
-          <Route path="/bluetooth" element={<BluetoothView />} />
+          <Route path="/ble" element={<BluetoothView />} />
           <Route path="/qrac" element={<QRAC />} />
         </Routes>
       </ResizablePanel>
