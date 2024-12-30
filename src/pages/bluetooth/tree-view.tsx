@@ -14,7 +14,7 @@ import React, {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { GatewayItem, State } from "./types";
+import { GatewayItem, State } from "@/types";
 
 
 type TreeContextProps = {

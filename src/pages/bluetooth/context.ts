@@ -1,9 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { Cmd, Message, OpType, handleMessage, CmdResult } from "./protocol";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
-import { GatewayItem, State } from "@/types";
+import { BeaconItem, GatewayItem, State } from "@/types";
 
 type MqttMsg = {
   dup: boolean;
@@ -14,8 +13,6 @@ type MqttMsg = {
   payload: string;
   date: Date;
 };
-
-
 
 interface HistoryItem extends CmdResult {
   dir: "up" | "down";
@@ -36,14 +33,25 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
   let avoidExtraCall = false;
-  let unlisten: UnlistenFn | undefined = undefined;
+  let mqtt_u: UnlistenFn | undefined = undefined;
+  let beacon_u: UnlistenFn | undefined = undefined;
   useEffect(() => {
     if (!avoidExtraCall) {
       avoidExtraCall = true;
       listen("mqtt_msg", ({ payload }) => {
         handleDate(payload);
       }).then((v) => {
-        unlisten = v;
+        mqtt_u = v;
+      });
+
+      listen("beacon_update", ({ payload }) => {
+        let beacon = payload as BeaconItem;
+        setState((s) => {
+          s.beacon[beacon.id] = beacon;
+          return { ...s };
+        });
+      }).then((v) => {
+        beacon_u = v;
       });
 
       invoke("mqtt_state").then((res) => {
@@ -54,7 +62,8 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
     }
 
     return () => {
-      !!unlisten && unlisten();
+      !!mqtt_u && mqtt_u();
+      !!beacon_u && beacon_u();
     };
   }, []);
 
@@ -85,17 +94,19 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
       const { belongGw, updater: updater } = handleMessage(msg);
       setTreeData((list) => {
         let index = list.findIndex((item) => {
-          return item.id === gateway_mac;
+          return item.mac === gateway_mac;
         });
         if (index === -1) {
           index = list.length;
           list.push({
             id: gateway_mac,
+            mac: gateway_mac,
+            addr: 0,
             name: gateway_mac,
             date: mqttMsg.date,
-            data: {},
-            children: [],
-            addr: 0,
+            model: "",
+            version: 0,
+            data: {}
           });
         }
 
@@ -113,16 +124,22 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
 
             if (i === -1) {
               list[index].children?.push({
-                id: msg.src_addr!.toString(),
                 name: msg.src_addr!.toString(),
                 addr: msg.src_addr!,
-                data: updater({}),
                 date: mqttMsg.date,
                 position: {
                   x: 0,
                   y: 0,
-                  z: 0
-                }
+                  z: 0,
+                },
+                gateway: "",
+                status: 0,
+                version: 0,
+                mode: 0,
+                id: "",
+                model: "",
+                data: {},
+                mac: ""
               });
               list[index].children?.sort((a, b) => {
                 return a.addr - b.addr;

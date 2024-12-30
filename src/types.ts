@@ -1,25 +1,4 @@
-export type Node = {
-  id: string
-  x: number
-  y: number
-  z: number
-}
 
-export type BeaconType = 'cargo' | 'person'
-
-export type BeaconData = {
-  id: string
-  rssi: { [nodeId: string]: number }
-  type: BeaconType
-}
-
-export type BeaconPosition = {
-  id: string
-  x: number
-  y: number
-  z: number
-  type: BeaconType
-}
 
 export type WarehouseItemType = 'shelf' | 'aisle'
 
@@ -41,7 +20,9 @@ export type State = {
 };
 
 export type GatewayItem = {
+  id: string;
   name: string;
+  mac: string;
   addr: number;
   ip?: string;
   model: string;
@@ -55,8 +36,10 @@ export type GatewayItem = {
 };
 
 export type LightItem = {
+  id: string;
   name: string;
   addr: number;
+  mac: string;
   isSelectable?: boolean;
   gateway: string;
   date: Date;
@@ -64,6 +47,8 @@ export type LightItem = {
   status: number;
   version: number;
   mode: number;
+  model: string,
+  data:{}
 };
 
 export type Positon = {

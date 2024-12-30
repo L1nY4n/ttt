@@ -1,4 +1,4 @@
-import React, { memo, useState, useMemo, useEffect, useRef } from "react";
+import React, { memo, useState, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Environment, Grid, Stars } from "@react-three/drei";
 import { LightObject } from "./LightObject";
@@ -20,12 +20,12 @@ const Floor = memo(() => {
         <meshStandardMaterial color="#121212" />
       </mesh>  */}
       <Grid
-        position={[50, 0, 50]}
-        args={[100, 100]}
+        position={[7.5, 0, 7.5]}
+        args={[15, 15]}
         cellSize={1}
         cellThickness={1}
         cellColor="#333"
-        sectionSize={10}
+        sectionSize={0.5}
         sectionThickness={1}
         sectionColor="#555"
         fadeDistance={400}
@@ -35,16 +35,16 @@ const Floor = memo(() => {
   );
 });
 
-const WallElement = memo(() => {
+const Wall = memo(() => {
   return (
     <group>
-      <mesh position={[-0.5, 2, 50]} castShadow receiveShadow>
-        <boxGeometry args={[1, 4, 100]} />
+      <mesh position={[-0.05, 0.5, 7.5]} castShadow receiveShadow>
+        <boxGeometry args={[0.1, 1, 15]} />
         <meshStandardMaterial color="#222" />
       </mesh>
 
-      <mesh position={[50, 2, -0.5]} castShadow receiveShadow>
-        <boxGeometry args={[100, 4, 1]} />
+      <mesh position={[7.5, 0.55, -0.05]} castShadow receiveShadow>
+        <boxGeometry args={[15, 1, 0.1]} />
         <meshStandardMaterial color="#222" />
       </mesh>
     </group>
@@ -52,31 +52,27 @@ const WallElement = memo(() => {
 });
 
 const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [lookat, setLookat] = useState([50.0, 0.0, 50.0]);
+  const [selectedNodeId, _setSelectedNodeId] = useState<string | null>(null);
+  const [lookat, setLookat] = useState([5.0, 0.0, 5.0]);
 
-  const memoizedBeacons = useMemo(
-    () =>
-      beacons.map((beacon) => (
-        <Beacon
-          key={beacon.id}
-          {...beacon}
-          nodes={lights}
-          onClick={(sel) => {
-            if (sel) {
-              const pos = beacon.position
-                ? [beacon.position.x / 20, 0.5, beacon.position.z / 20]
-                : [50.0, 0.0, 50.0];
-              setLookat(pos);
-            } else {
-            }
-          }}
-        />
-      )),
-    [beacons, lights]
-  );
+  const memoizedBeacons = useMemo(() => {
+    return beacons.map((beacon) => (
+      <Beacon
+        key={beacon.id}
+        {...beacon}
+        nodes={lights}
+        onClick={(sel) => {
+          if (sel) {
+            const pos = beacon.position
+              ? [beacon.position.x, 0.05, beacon.position.z]
+              : [5.0, 0.0, 5.0];
+            setLookat(pos);
+          } else {
+          }
+        }}
+      />
+    ));
+  }, [beacons, lights]);
 
   const memoizedNodes = useMemo(
     () =>
@@ -84,18 +80,18 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
         .filter((l) => l.position)
         .map((node) => (
           <LightObject
-            id={node.addr.toString()}
-            x={node.position.x / 20}
-            y={node.position.y / 20}
-            z={node.position.z / 20}
+ 
+            x={node.position.x}
+            y={node.position.y}
+            z={node.position.z}
             key={node.addr}
             {...node}
             name={node.name || node.addr.toString(16).toUpperCase()}
             isSelected={node.addr.toString() === selectedNodeId}
-            isEditing={isEditMode}
+            isEditing={false}
           />
         )),
-    [lights, selectedNodeId, isEditMode]
+    [beacons, selectedNodeId]
   );
 
   // const calculateCenter = () => {
@@ -111,18 +107,21 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
 
   function Rig() {
     const vec = new Vector3();
-    let  lt =  new Vector3();
-    return useFrame(({ camera }) => {
+
+    const { camera } = useThree();
+
+    useEffect(() => {
+      const [x, y, z] = lookat;
+      camera.lookAt(x, y, z);
+    }, [lookat]);
+
+    useFrame(({ camera }) => {
       camera.position.lerp(
         vec.set(camera.position.x, camera.position.y, camera.position.z),
         0.05
       );
-      const [x, y, z] = lookat;
-      if (lt.x !==x || lt.y !==y ||lt.z !==z) {
-        camera.lookAt(x, y, z);
-      }
-
     });
+    return null;
   }
 
   return (
@@ -130,27 +129,26 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
       <header className="z-40">
         <br />
       </header>
-      <Canvas camera={{ position: [100, 50, 50], fov: 60 }} shadows>
+      <Canvas
+        camera={{ position: [10, 5, 5], fov: 60 }}
+        shadows
+        // frameloop="demand"
+      >
         <color attach="background" args={["#111"]} />
-        <Environment preset="warehouse" />
-        <ambientLight intensity={0.6} />
+        <ambientLight intensity={0.5} />
         <directionalLight
-          position={[10, 20, 10]}
+          position={[1, 2, 1]}
           intensity={0.8}
           castShadow
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
         />
-
         <Floor />
-        <WallElement />
+        <Wall />
         {memoizedNodes}
         {memoizedBeacons}
-
         <OrbitControls target={lookat} />
-
         <Rig />
-
         <Stars
           radius={300}
           depth={50}
@@ -159,6 +157,7 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
           saturation={0}
           fade
         />
+        <Environment preset="forest" />˝
       </Canvas>
     </div>
   );

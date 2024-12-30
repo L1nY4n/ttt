@@ -1,21 +1,26 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Line, Select, Html } from "@react-three/drei";
 import { BeaconItem, LightItem } from "@/types";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 export const Beacon: React.FC<
   BeaconItem & { nodes: LightItem[]; onClick: (selected: boolean) => void }
 > = React.memo(({ id, position, rssi_map, onClick }) => {
   const meshRef = useRef<THREE.Mesh>(null);
 
-  const currentPosition = useRef(
-    new THREE.Vector3(
-      position ? position.x / 20 : 0,
-      0.5,
-      position ? position.z / 20 : 0
-    )
-  );
+  const currentPosition = useMemo(() => {
+    return new THREE.Vector3(
+      position ? position.x : 0,
+     0.05,
+      position ? position.z: 0
+    );
+  }, [position, rssi_map]);
   const [selected, setSelected] = useState(false);
+
+  useFrame(() => {
+    meshRef.current?.position.lerp(currentPosition, 0.01);
+  });
 
   const toggleSelect = () => {
     setSelected(!selected);
@@ -26,10 +31,10 @@ export const Beacon: React.FC<
       <group>
         <mesh
           ref={meshRef}
-          position={currentPosition.current}
+          position={currentPosition}
           onPointerUp={toggleSelect}
         >
-          <boxGeometry args={[0.6, 0.6, 0.6]} />
+          <boxGeometry args={[0.04, 0.1, 0.04]} />
 
           <meshStandardMaterial
             color={`#${id.toString(16)}`}
@@ -39,9 +44,9 @@ export const Beacon: React.FC<
         </mesh>
         <mesh
           position={[
-            currentPosition.current.x,
-            currentPosition.current.y + 1,
-            currentPosition.current.z,
+            currentPosition.x,
+            currentPosition.y + 0.1,
+            currentPosition.z,
           ]}
         >
           <Html center>
@@ -57,11 +62,11 @@ export const Beacon: React.FC<
             rssi_map &&
             Object.values(rssi_map).map(([pos, rssi]) => {
               const start = [
-                currentPosition.current.x,
-                currentPosition.current.y,
-                currentPosition.current.z,
+                currentPosition.x,
+                currentPosition.y,
+                currentPosition.z,
               ];
-              const end = [pos.x / 20, pos.y / 20, pos.z / 20];
+              const end = [pos.x , pos.y, pos.z ];
               const rssi_tooltip = [
                 (end[0] + start[0]) / 2,
                 (end[1] + start[1]) / 2,
@@ -73,8 +78,8 @@ export const Beacon: React.FC<
                     points={[start, end]}
                     color={`#${id.toString(16)}`}
                     dashed
-                    dashSize={0.2}
-                    gapSize={0.2}
+                    dashSize={0.03}
+                    gapSize={0.02}
                     linewidth={0.3}
                   >
                     <lineDashedMaterial color={`#${id.toString(16)}`} />
@@ -86,9 +91,9 @@ export const Beacon: React.FC<
                       {rssi}db
                     </Text> */}
                     <Html center>
-                      <div className="text-xs text-white select-none">
+                      <div className="text-xs text-white translate-x-1 select-none">
                         {rssi}
-                        <sup>dB</sup>
+                        <sup className="text-green-400">dB</sup>
                       </div>
                     </Html>
                   </mesh>

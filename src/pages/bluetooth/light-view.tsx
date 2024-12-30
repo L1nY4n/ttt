@@ -10,7 +10,7 @@ import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { differenceInMinutes } from "date-fns/differenceInMinutes";
 
 import { zhCN } from "date-fns/locale";
-import { ArrowDownUp, Router, Settings, Settings2 } from "lucide-react";
+import { ArrowDownUp, Router, Settings } from "lucide-react";
 import {
   Popover,
   PopoverContent,

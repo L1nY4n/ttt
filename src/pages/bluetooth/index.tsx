@@ -47,6 +47,7 @@ import { Positon } from "./types";
 
 import { BeaconView } from "./beacon";
 import Ble3d from "./3d/ble_3d";
+import { differenceInMinutes } from "date-fns/differenceInMinutes";
 
 function Bluetooth() {
   const [addr, setAddr] = useState("192.168.100.64");
@@ -263,11 +264,24 @@ function Bluetooth() {
               <Sheet modal={false}>
                 <SheetTrigger asChild>
                   <Button size={"icon"} className="w-6 h-6">
-                    <Rotate3DIcon className="w-4 h-4 animate-spin" />
+                    <Rotate3DIcon className="w-4 h-4 " />
                   </Button>
                 </SheetTrigger>
                 <SheetContent className="w-full h-screen sm:max-w-full ">
-                  <Ble3d  lights={Object.values(state.light)} beacons={Object.values(state.beacon)} />
+            
+                  <Ble3d
+                    lights={Object.values(state.light)}
+                    beacons={Object.values(state.beacon)
+                      .filter(
+                      (x) =>
+                        x.date && differenceInMinutes(new Date(), x.date) <= beaconOutline
+                    )
+                    .filter((b)=>
+                      beaconFilter === "" ||
+                      b.id.toString(16).toLowerCase().includes(beaconFilter.toLowerCase())
+                    )
+                  }
+                  />
                 </SheetContent>
               </Sheet>
 
@@ -333,7 +347,7 @@ function Bluetooth() {
               .filter(
                 ([key, _]) =>
                   beaconFilter === "" ||
-                  key.toLowerCase().includes(beaconFilter.toLowerCase())
+                  parseInt(key).toString(16).toLowerCase().includes(beaconFilter.toLowerCase())
               )
               .map(([key, value]) => (
                 <BeaconView key={key} info={value} />
