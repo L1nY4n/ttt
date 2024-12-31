@@ -1,6 +1,6 @@
 {
   "productName": "Hyz-tool",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "identifier": "com.x.dev",
   "build": {
     "beforeDevCommand": "bun run dev",
