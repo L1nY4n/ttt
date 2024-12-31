@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { statusList } from "./const";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Positon } from "./types";
 
 import { BeaconView } from "./beacon";
@@ -159,6 +159,10 @@ function Bluetooth() {
   function clearHistory() {
     setHistory([]);
   }
+
+  useEffect(()=>{
+  
+  },[])
 
   return (
     <div className="relative flex flex-col flex-grow h-screen">
@@ -385,7 +389,7 @@ function Bluetooth() {
                               <DropdownMenuItem
                                 key={item.value}
                                 onClick={(event) => {
-                                  onStatusChange(gw.name, 0xffff, item.value);
+                                  onStatusChange(gw_key , 0xffff, item.value);
                                   event.stopPropagation();
                                 }}
                               >

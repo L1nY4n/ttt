@@ -94,17 +94,23 @@ impl State {
             light.position = Some(position);
         }
     }
-    fn update_beacon_rssi(&mut self, beacon_id: u32, rssi: i8, battery: u8, light_addr: u16)->bool{
+    fn update_beacon_rssi(
+        &mut self,
+        beacon_id: u32,
+        rssi: i8,
+        battery: u8,
+        light_addr: u16,
+    ) -> bool {
         let light_or_none = self.light.get(&light_addr);
         let light_position = light_or_none.and_then(|light| light.position.clone());
         if let Some(beacon) = self.beacon.get_mut(&beacon_id) {
-            let  mut change = beacon.battery  == battery  ;
+            let mut change = beacon.battery == battery;
             beacon.battery = battery;
-            beacon.date=Some(Local::now().naive_local());
+            beacon.date = Some(Local::now().naive_local());
             if let Some(light_position) = light_position {
-                change =  beacon.calc_positon(light_addr, light_position, rssi) ||  change ;
+                change = beacon.calc_positon(light_addr, light_position, rssi) || change;
             }
-            return change ;
+            return change;
         } else {
             let mut rssi_map = HashMap::new();
             if light_position.is_some() {
@@ -121,7 +127,7 @@ impl State {
                     battery,
                     position: None,
                     rssi_map,
-                    date: Some(Local::now().naive_local())
+                    date: Some(Local::now().naive_local()),
                 },
             );
             true
@@ -146,7 +152,7 @@ pub struct Beacon {
     pub battery: u8,
     pub position: Option<Position>,
     pub rssi_map: HashMap<u16, (Position, i8, NaiveDateTime)>,
-    date: Option<NaiveDateTime>
+    date: Option<NaiveDateTime>,
 }
 
 impl Beacon {
@@ -158,49 +164,45 @@ impl Beacon {
         self.rssi_map
             .insert(light_addr, (position, rssi, Local::now().naive_local()));
 
-       
-
         if self.rssi_map.len() < 4 {
-            return  false;
+            return false;
         }
 
-            let mut beacons = HashMap::new();
+        let mut beacons = HashMap::new();
 
-            
-            for (addr, (pos, rssi, date)) in self.rssi_map.iter() {
-                let diff = Local::now().naive_local() - *date;
-              
-                if diff.num_seconds() <=30 {
-                    beacons.insert(
-                        addr.to_string(),
-                        BeaconData {
-                            position: nalgebra::Vector3::new(pos.x, pos.y, pos.z),
-                            rssi: *rssi as f64,
-                        },
-                    );
-                }
-            }
-       
-            if beacons.len() < 4 {
-                return  false;
-            }
+        for (addr, (pos, rssi, date)) in self.rssi_map.iter() {
+            let diff = Local::now().naive_local() - *date;
 
-            let pos = calc3::LocationCalculator::new(-60.0, 10.0).calculate_position(&beacons);
-            if let Some(pos) = pos {
-                println!("calc_positon={:#?}", pos);
-
-                self.position = Some(Position {
-                    x: pos.x,
-                    y: pos.y,
-                    z: pos.z,
-                });
-                true
-            } else {
-                false
+            if diff.num_seconds() <= 30 {
+                beacons.insert(
+                    addr.to_string(),
+                    BeaconData {
+                        position: nalgebra::Vector3::new(pos.x, pos.y, pos.z),
+                        rssi: *rssi as f64,
+                    },
+                );
             }
-        } 
+        }
+
+        if beacons.len() < 4 {
+            return false;
+        }
+
+        let pos = calc3::LocationCalculator::new(-60.0, 10.0).calculate_position(&beacons);
+        if let Some(pos) = pos {
+            println!("calc_positon={:#?}", pos);
+
+            self.position = Some(Position {
+                x: pos.x,
+                y: pos.y,
+                z: pos.z,
+            });
+            true
+        } else {
+            false
+        }
     }
-
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Position {
@@ -226,6 +228,7 @@ async fn process_message(app_handle: tauri::AppHandle, data: MqttRecvData) {
                         } => {
                             if let Some(gateway) = s.gateway.get_mut(&id) {
                                 gateway.name = model;
+                                gateway.mac = id;
                                 gateway.ip = ip;
                                 gateway.version = version;
                                 gateway.date = Local::now().naive_local();
@@ -234,6 +237,7 @@ async fn process_message(app_handle: tauri::AppHandle, data: MqttRecvData) {
                                     name: model.clone(),
                                     model,
                                     version,
+                                    mac: id.clone(),
                                     ip,
                                     date: Local::now().naive_local(),
                                     ..Default::default()
@@ -252,6 +256,7 @@ async fn process_message(app_handle: tauri::AppHandle, data: MqttRecvData) {
                                 light.mode = mode;
                                 light.version = version;
                                 light.date = Local::now().naive_local();
+                                let _ = app_handle.emit("light_update", light.clone());
                             } else {
                                 let light = Light {
                                     name: "".to_string(),
@@ -263,6 +268,7 @@ async fn process_message(app_handle: tauri::AppHandle, data: MqttRecvData) {
                                     date: Local::now().naive_local(),
                                     ..Default::default()
                                 };
+                                let _ = app_handle.emit("light_update", light.clone());
                                 s.light.insert(light_addr, light);
                             }
                         }
@@ -270,9 +276,9 @@ async fn process_message(app_handle: tauri::AppHandle, data: MqttRecvData) {
                             light_addr,
                             beacons,
                         } => beacons.iter().for_each(|(id, rssi, battery)| {
-                          if    s.update_beacon_rssi(*id, *rssi, *battery, light_addr){
-                               let _ = app_handle.emit("beacon_update", s.beacon.get(id));
-                          }
+                            if s.update_beacon_rssi(*id, *rssi, *battery, light_addr) {
+                                let _ = app_handle.emit("beacon_update", s.beacon.get(id));
+                            }
                         }),
                     },
                     Err(err) => {

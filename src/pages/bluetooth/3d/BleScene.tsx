@@ -157,7 +157,7 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
           saturation={0}
           fade
         />
-        <Environment preset="forest" />˝
+        <Environment preset="warehouse" />˝
       </Canvas>
     </div>
   );

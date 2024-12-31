@@ -38,7 +38,7 @@ export const LightObject: React.FC<LightObjectProps> = ({ name, x, y, z }) => {
         castShadow
         shadow-mapSize={[128, 128]}
       /> */}
-      <mesh position={[x, y + 0.1, z]}>
+      <mesh position={[x, y + 0.2, z]}>
         <Html center>
           <div className="text-sm text-white bg-transparent bg-black select-none whitespace-nowrap">
             {name}

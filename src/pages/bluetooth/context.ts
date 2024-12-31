@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Cmd, Message, OpType, handleMessage, CmdResult } from "./protocol";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
-import { BeaconItem, GatewayItem, State } from "@/types";
+import { BeaconItem, GatewayItem, LightItem, State } from "@/types";
 
 type MqttMsg = {
   dup: boolean;
@@ -35,6 +35,7 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
   let avoidExtraCall = false;
   let mqtt_u: UnlistenFn | undefined = undefined;
   let beacon_u: UnlistenFn | undefined = undefined;
+  let light_u: UnlistenFn | undefined = undefined;
   useEffect(() => {
     if (!avoidExtraCall) {
       avoidExtraCall = true;
@@ -54,6 +55,17 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
         beacon_u = v;
       });
 
+      listen("light_update", ({ payload }) => {
+        let light = payload as LightItem;
+        setState((s) => {
+          s.light[light.addr] = light;
+          return { ...s };
+        });
+      }).then((v) => {
+        light_u = v;
+      });
+      
+
       invoke("mqtt_state").then((res) => {
         const s = res as State;
         setState(s);
@@ -64,6 +76,7 @@ export default function useBluetoothContext(init_data: GatewayItem[] | null) {
     return () => {
       !!mqtt_u && mqtt_u();
       !!beacon_u && beacon_u();
+      !!light_u && light_u()
     };
   }, []);
 
