@@ -1,6 +1,7 @@
 import React from "react";
 import { Html } from "@react-three/drei";
 
+
 interface LightObjectProps  {
   name: string;
   isSelected: boolean;
@@ -25,8 +26,8 @@ export const LightObject: React.FC<LightObjectProps> = ({ name, x, y, z }) => {
       >
 
       </Sphere> */}
-      <mesh position={[x, y, z]}>
-        <boxGeometry args={[0.1, 0.1, 0.4]} />
+      <mesh position={[x, y, z]} rotation={[0, 0,Math.PI / 2]}>
+        <cylinderGeometry   args={[0.03,0.03,0.5,3,32,false,Math.PI /2,Math.PI *2]}   />
         <meshStandardMaterial color={"orange"} />
       </mesh>
       {/* <SpotLight
@@ -42,6 +43,7 @@ export const LightObject: React.FC<LightObjectProps> = ({ name, x, y, z }) => {
         <Html center>
           <div className="text-sm text-white bg-transparent bg-black select-none whitespace-nowrap">
             {name}
+            <sup className="">[{x},{z}]</sup>
           </div>
         </Html>
       </mesh>

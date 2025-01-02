@@ -164,16 +164,17 @@ impl Beacon {
         self.rssi_map
             .insert(light_addr, (position, rssi, Local::now().naive_local()));
 
-        if self.rssi_map.len() < 4 {
+        if self.rssi_map.len() < 3 {
             return false;
         }
 
         let mut beacons = HashMap::new();
-
-        for (addr, (pos, rssi, date)) in self.rssi_map.iter() {
+        let mut rssi_vec: Vec<_> = self.rssi_map.iter().collect();
+        rssi_vec.sort_by(|a, b| b.1 .1.cmp(&a.1 .1));
+        for (addr, (pos, rssi, date)) in &rssi_vec[..3] {
             let diff = Local::now().naive_local() - *date;
 
-            if diff.num_seconds() <= 30 {
+            if diff.num_seconds() <= 50 &&  *rssi  <  -30 {
                 beacons.insert(
                     addr.to_string(),
                     BeaconData {
@@ -184,11 +185,12 @@ impl Beacon {
             }
         }
 
-        if beacons.len() < 4 {
+        if beacons.len() < 3 {
+            println!("beacons len < 3");
             return false;
         }
 
-        let pos = calc3::LocationCalculator::new(-60.0, 10.0).calculate_position(&beacons);
+        let pos = calc3::LocationCalculator::new(-42.0, 5.0).calculate_position2d(&beacons);
         if let Some(pos) = pos {
             println!("calc_positon={:#?}", pos);
 
@@ -199,6 +201,7 @@ impl Beacon {
             });
             true
         } else {
+            println!("calc_positon failed");
             false
         }
     }

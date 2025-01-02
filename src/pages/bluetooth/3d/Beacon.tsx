@@ -43,8 +43,8 @@ export const Beacon: React.FC<
             emissiveIntensity={0.3}
           />
           <Html position={[0, 0.1, 0]} center>
-            <span className="text-[0.5rem] text-white bg-transparent bg-black select-none whitespace-nowrap">
-              {id.toString(16).toUpperCase()}
+            <span className="text-xs text-white bg-transparent bg-black select-none whitespace-nowrap">
+              {id.toString(16).toUpperCase()} ({currentPosition.x.toFixed(2)},{currentPosition.z.toFixed(2)})
             </span>
           </Html>
         </mesh>
@@ -64,6 +64,8 @@ export const Beacon: React.FC<
               (end[1] + start[1]) / 2,
               (end[2] + start[2]) / 2,
             ];
+
+            const distance =  currentPosition.distanceTo(new THREE.Vector3(pos.x, pos.y, pos.z));
             return (
               <>
                 <Line
@@ -84,8 +86,8 @@ export const Beacon: React.FC<
                     </Text> */}
                   <Html center>
                     <div className="text-xs text-white translate-x-1 select-none">
-                      {rssi}
-                      <sup className="text-green-400">dB</sup>
+                     <i className="text-green-400"> {rssi}</i>
+                      <sup className="text-yellow-400">({distance.toFixed(2)}m) </sup>
                     </div>
                   </Html>
                 </mesh>
