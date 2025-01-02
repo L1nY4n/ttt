@@ -171,7 +171,7 @@ impl Beacon {
         let mut beacons = HashMap::new();
         let mut rssi_vec: Vec<_> = self.rssi_map.iter().collect();
         rssi_vec.sort_by(|a, b| b.1 .1.cmp(&a.1 .1));
-        for (addr, (pos, rssi, date)) in &rssi_vec[..3] {
+        for (addr, (pos, rssi, date)) in &rssi_vec[..4] {
             let diff = Local::now().naive_local() - *date;
 
             if diff.num_seconds() <= 50 &&  *rssi  <  -30 {

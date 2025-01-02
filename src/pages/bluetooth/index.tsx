@@ -85,8 +85,9 @@ function Bluetooth() {
       .then((_) => {
         setConnected(true);
         toast.success("NICE !!!", {
-          duration: 1000,
+          duration: 500,
           description: "MQTT connected" + addr + ":" + port,
+          closeButton: true,
         });
       })
       .catch((error) => {
@@ -160,9 +161,7 @@ function Bluetooth() {
     setHistory([]);
   }
 
-  useEffect(()=>{
-  
-  },[])
+  useEffect(() => {}, []);
 
   return (
     <div className="relative flex flex-col flex-grow h-screen">
@@ -272,19 +271,27 @@ function Bluetooth() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent className="w-full h-screen sm:max-w-full ">
-            
+                  <SheetHeader>
+                    <SheetTitle></SheetTitle>
+                    <SheetDescription></SheetDescription>
+                  </SheetHeader>
                   <Ble3d
                     lights={Object.values(state.light)}
                     beacons={Object.values(state.beacon)
                       .filter(
-                      (x) =>
-                        x.date && differenceInMinutes(new Date(), x.date) <= beaconOutline
-                    )
-                    .filter((b)=>
-                      beaconFilter === "" ||
-                      b.id.toString(16).toLowerCase().includes(beaconFilter.toLowerCase())
-                    )
-                  }
+                        (x) =>
+                          x.date &&
+                          differenceInMinutes(new Date(), x.date) <=
+                            beaconOutline
+                      )
+                      .filter(
+                        (b) =>
+                          beaconFilter === "" ||
+                          b.id
+                            .toString(16)
+                            .toLowerCase()
+                            .includes(beaconFilter.toLowerCase())
+                      )}
                   />
                 </SheetContent>
               </Sheet>
@@ -351,7 +358,10 @@ function Bluetooth() {
               .filter(
                 ([key, _]) =>
                   beaconFilter === "" ||
-                  parseInt(key).toString(16).toLowerCase().includes(beaconFilter.toLowerCase())
+                  parseInt(key)
+                    .toString(16)
+                    .toLowerCase()
+                    .includes(beaconFilter.toLowerCase())
               )
               .map(([key, value]) => (
                 <BeaconView key={key} info={value} />
@@ -389,7 +399,7 @@ function Bluetooth() {
                               <DropdownMenuItem
                                 key={item.value}
                                 onClick={(event) => {
-                                  onStatusChange(gw_key , 0xffff, item.value);
+                                  onStatusChange(gw_key, 0xffff, item.value);
                                   event.stopPropagation();
                                 }}
                               >

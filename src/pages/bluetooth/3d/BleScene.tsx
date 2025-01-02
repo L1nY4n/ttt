@@ -1,11 +1,12 @@
-import React, { memo, useState, useMemo, useEffect } from "react";
+import React, { memo, useState, useMemo, useEffect, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Environment, Grid, Stars } from "@react-three/drei";
+import { OrbitControls, Environment, Grid, Stars, Preload } from "@react-three/drei";
 import { LightObject } from "./LightObject";
 import { Beacon } from "./Beacon";
 import { LightItem, BeaconItem } from "@/types";
 
 import { Vector3 } from "three";
+import { Loader2 } from "lucide-react";
 
 interface WarehouseSceneProps {
   lights: LightItem[];
@@ -80,7 +81,6 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
         .filter((l) => l.position)
         .map((node) => (
           <LightObject
- 
             x={node.position.x}
             y={node.position.y}
             z={node.position.z}
@@ -129,36 +129,32 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
       <header className="z-40">
         <br />
       </header>
-      <Canvas
-        camera={{ position: [10, 5, 5], fov: 60 }}
-        shadows
-        // frameloop="demand"
-      >
-        <color attach="background" args={["#111"]} />
-        <ambientLight intensity={0.5} />
-        <directionalLight
-          position={[1, 2, 1]}
-          intensity={0.8}
-          castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
-        />
-        <Floor />
-        <Wall />
-        {memoizedNodes}
-        {memoizedBeacons}
-        <OrbitControls target={lookat} />
-        <Rig />
-        <Stars
-          radius={300}
-          depth={50}
-          count={5000}
-          factor={4}
-          saturation={0}
-          fade
-        />
-        <Environment preset="warehouse" />˝
-      </Canvas>
+      <Suspense fallback={<Loader2 size={64} className="animate-spin" />}>
+        <Canvas
+          camera={{ position: [10, 5, 5], fov: 60 }}
+          shadows
+          // frameloop="demand"
+        >
+          <color attach="background" args={["#111"]} />
+          <ambientLight intensity={0.5} />
+          <directionalLight
+            position={[1, 2, 1]}
+            intensity={0.8}
+            castShadow
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+          />
+          <Floor />
+          <Wall />
+          {memoizedNodes}
+          {memoizedBeacons}
+          <OrbitControls target={lookat} />
+          <Rig />
+        
+            <Preload all />
+       
+          </Canvas>
+      </Suspense>
     </div>
   );
 });
