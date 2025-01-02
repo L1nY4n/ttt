@@ -1,6 +1,6 @@
 import React, { memo, useState, useMemo, useEffect, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Environment, Grid, Stars, Preload } from "@react-three/drei";
+import { OrbitControls, Grid, Preload } from "@react-three/drei";
 import { LightObject } from "./LightObject";
 import { Beacon } from "./Beacon";
 import { LightItem, BeaconItem } from "@/types";
