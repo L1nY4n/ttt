@@ -41,12 +41,12 @@ const Wall = memo(() => {
     <group>
       <mesh position={[-0.05, 0.5, 7.5]} castShadow receiveShadow>
         <boxGeometry args={[0.1, 1, 15]} />
-        <meshStandardMaterial color="#222" />
+        <meshStandardMaterial color="#aaa" flatShading />
       </mesh>
 
       <mesh position={[7.5, 0.55, -0.05]} castShadow receiveShadow>
         <boxGeometry args={[15, 1, 0.1]} />
-        <meshStandardMaterial color="#222" />
+        <meshStandardMaterial color="#aaa" flatShading />
       </mesh>
     </group>
   );

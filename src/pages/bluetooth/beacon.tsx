@@ -8,7 +8,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 import { toast } from "sonner";
@@ -54,20 +53,25 @@ export function BeaconView({ info }: { info: BeaconItem }) {
           <DialogContent className="">
             <DialogHeader>
               <DialogTitle> {info.id.toString(16).toUpperCase()} </DialogTitle>
-              <DialogDescription>{info.position &&    `   [${info.position .x} , ${info.position .y} , ${info.position .z}]`}</DialogDescription>
+              <DialogDescription>
+                {info.position &&
+                  `   [${info.position.x} , ${info.position.y} , ${info.position.z}]`}
+              </DialogDescription>
             </DialogHeader>
             <div className="">
               {Object.entries(info.rssi_map).map(
-                ([light_id, [point, rssi, date]]) => {
+                ([light_id, { position, date, rssi }]) => {
                   return (
-                    <div className="flex items-center justify-around mb-1" key={light_id}>
+                    <div
+                      className="flex items-center justify-around mb-1"
+                      key={light_id}
+                    >
                       <Badge className="text-right">
                         {parseInt(light_id).toString(16).toUpperCase()}
-                        {`   [${point.x} , ${point.y} , ${point.z}]`}
+                        {`   [${position.x} , ${position.y} , ${position.z}]`}
                       </Badge>
                       <Badge className="text-xs ">{rssi}</Badge>
                       <Badge className="text-xs">
-                        
                         {formatDistanceToNow(date, {
                           locale: zhCN,
                           addSuffix: true,

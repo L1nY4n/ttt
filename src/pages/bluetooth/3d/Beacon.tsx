@@ -52,7 +52,7 @@ export const Beacon: React.FC<
         {selected &&
           position &&
           rssi_map &&
-          Object.values(rssi_map).map(([pos, rssi]) => {
+          Object.values(rssi_map).map(({ position: pos, rssi, distance }) => {
             const start = [
               currentPosition.x,
               currentPosition.y,
@@ -65,7 +65,7 @@ export const Beacon: React.FC<
               (end[2] + start[2]) / 2,
             ];
 
-            const distance = currentPosition.distanceTo(
+            const real_distance = currentPosition.distanceTo(
               new THREE.Vector3(pos.x, pos.y, pos.z)
             );
             return (
@@ -83,15 +83,13 @@ export const Beacon: React.FC<
                 <mesh
                   position={rssi_tooltip as [x: number, y: number, z: number]}
                 >
-                  {/* <Text fontSize={1} color="#fff" position={rssi_tooltip}>
-                      {rssi}db
-                    </Text> */}
                   <Html center>
-                    <div className="text-xs text-white translate-x-1 select-none">
-                      <i className="text-green-400"> {rssi}</i>
-                      <sup className="text-yellow-400">
-                        ({distance.toFixed(2)}m){" "}
-                      </sup>
+                    <div className="w-24 text-xs text-white translate-x-1 select-none ">
+                      <div className="text-green-400"> {rssi} </div>
+                      <div className="text-xs text-yellow-400">
+                        ({real_distance.toFixed(2)} /{" "}
+                        {(distance - real_distance).toFixed(2)})
+                      </div>
                     </div>
                   </Html>
                 </mesh>

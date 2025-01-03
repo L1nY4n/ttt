@@ -52,6 +52,13 @@ enum MqttClientMsg {
 }
 
 #[derive(Default, Serialize, Deserialize, Clone)]
+pub struct StateOld {
+    connected: bool,
+    gateway: HashMap<String, Gateway>,
+    light: HashMap<u16, Light>,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone)]
 pub struct State {
     connected: bool,
     #[serde(skip)]
@@ -65,7 +72,19 @@ impl State {
     pub fn new(app_handle: tauri::AppHandle) -> Mutex<Self> {
         let s = if let Ok(store) = app_handle.store("store.json") {
             if let Some(mqtt) = store.get(MQTT_STORE_KEY) {
-                let mut s: State = serde_json::from_value(mqtt).unwrap();
+                let mut s: State = match serde_json::from_value(mqtt.clone()) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        println!("mqtt store err ={}", e);
+                        let s_old = serde_json::from_value::<StateOld>(mqtt).unwrap();
+                        let mut s = State::default();
+                        s.connected = s_old.connected;
+                        s.gateway = s_old.gateway;
+                        s.light = s_old.light;
+
+                        s
+                    }
+                };
                 s.connected = false;
                 s
             } else {
@@ -116,7 +135,7 @@ impl State {
             if light_position.is_some() {
                 rssi_map.insert(
                     light_addr,
-                    (light_position.unwrap(), rssi, Local::now().naive_local()),
+                    RssiItem::new(rssi, light_position.unwrap(), Local::now().naive_local()),
                 );
             }
             self.beacon.insert(
@@ -151,18 +170,41 @@ pub struct Beacon {
     pub id: u32,
     pub battery: u8,
     pub position: Option<Position>,
-    pub rssi_map: HashMap<u16, (Position, i8, NaiveDateTime)>,
+
+    pub rssi_map: HashMap<u16, RssiItem>,
     date: Option<NaiveDateTime>,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct RssiItem {
+    pub rssi: i8,
+    pub position: Position,
+    pub date: NaiveDateTime,
+    pub distance: f64,
+}
+
+impl RssiItem {
+    pub fn new(rssi: i8, postion: Position, date: NaiveDateTime) -> Self {
+        let distance = calc3::LocationCalculator::new(-56.0, 1.5).rssi_to_distance(rssi as f64);
+        Self {
+            rssi,
+            position: postion,
+            date,
+            distance,
+        }
+    }
+}
+
 impl Beacon {
-    pub fn get_rssi_map(&self) -> &HashMap<u16, (Position, i8, NaiveDateTime)> {
+    pub fn get_rssi_map(&self) -> &HashMap<u16, RssiItem> {
         &self.rssi_map
     }
 
     fn calc_positon(&mut self, light_addr: u16, position: Position, rssi: i8) -> bool {
-        self.rssi_map
-            .insert(light_addr, (position, rssi, Local::now().naive_local()));
+        self.rssi_map.insert(
+            light_addr,
+            RssiItem::new(rssi, position, Local::now().naive_local()),
+        );
 
         if self.rssi_map.len() < 3 {
             return false;
@@ -170,15 +212,24 @@ impl Beacon {
 
         let mut beacons = HashMap::new();
         let mut rssi_vec: Vec<_> = self.rssi_map.iter().collect();
-        rssi_vec.sort_by(|a, b| b.1 .1.cmp(&a.1 .1));
-        for (addr, (pos, rssi, date)) in &rssi_vec[..4] {
+        rssi_vec.sort_by(|a, b| b.1.rssi.cmp(&a.1.rssi));
+        for (
+            addr,
+            RssiItem {
+                position: postion,
+                rssi,
+                date,
+                ..
+            },
+        ) in &rssi_vec[..std::cmp::min(rssi_vec.len(), 4)]
+        {
             let diff = Local::now().naive_local() - *date;
 
-            if diff.num_seconds() <= 50 &&  *rssi  <  -30 {
+            if diff.num_seconds() <= 30 && *rssi < -40 {
                 beacons.insert(
                     addr.to_string(),
                     BeaconData {
-                        position: nalgebra::Vector3::new(pos.x, pos.y, pos.z),
+                        position: nalgebra::Vector3::new(postion.x, postion.y, postion.z),
                         rssi: *rssi as f64,
                     },
                 );
@@ -190,7 +241,7 @@ impl Beacon {
             return false;
         }
 
-        let pos = calc3::LocationCalculator::new(-42.0, 5.0).calculate_position2d(&beacons);
+        let pos = calc3::LocationCalculator::new(-56.0, 1.5).calculate_position_2d(&beacons);
         if let Some(pos) = pos {
             println!("calc_positon={:#?}", pos);
 

@@ -20,11 +20,11 @@ impl LocationCalculator {
         }
     }
 
-    fn rssi_to_distance(&self, rssi: f64) -> f64 {
+    pub fn rssi_to_distance(&self, rssi: f64) -> f64 {
         10f64.powf((self.reference_power - rssi) / (10.0 * self.path_loss_exponent))
     }
 
-    pub fn calculate_position(
+    pub fn calculate_position_3d(
         &self,
         beacons: &HashMap<String, BeaconData>,
     ) -> Option<Vector3<f64>> {
@@ -61,12 +61,11 @@ impl LocationCalculator {
         }
     }
 
-    pub fn calculate_position2d(
+    pub fn calculate_position_2d(
         &self,
         beacons: &HashMap<String, BeaconData>,
     ) -> Option<Vector3<f64>> {
         if beacons.len() < 3 {
-            // 因为现在只求解两个未知数，至少需要3个点（含参考点）
             return None;
         }
 
@@ -82,7 +81,7 @@ impl LocationCalculator {
             let d1 = self.rssi_to_distance(ref_point.rssi);
             let d2 = self.rssi_to_distance(beacon.rssi);
 
-            // 根据新的约束条件 y = 0.5 来构建方程
+            //  y = 0.5  信标的高度大概是0.5米
             // 2(x_i - x_1)x + 2(z_i - z_1)z = d1^2 - d2^2 - r1^2 + ri^2 - 2 * (y_i - y_1) * 0.5
             let row_x = 2.0 * (beacon.position.x - ref_point.position.x);
             let row_z = 2.0 * (beacon.position.z - ref_point.position.z);
@@ -96,7 +95,7 @@ impl LocationCalculator {
         println!("Matrix A: {:?}", a);
 
         match a.svd(true, true).solve(&b, 1e-10) {
-            Ok(x) => Some(Vector3::new(x[0], 0.5, x[1])), // 固定 y 为 0.5
+            Ok(x) => Some(Vector3::new(x[0], 0.5, x[1])),
             Err(_) => None,
         }
     }
@@ -148,7 +147,7 @@ mod tests {
         );
 
         let calculator = LocationCalculator::new(-40.0, 2.0);
-        if let Some(position) = calculator.calculate_position(&beacons) {
+        if let Some(position) = calculator.calculate_position_3d(&beacons) {
             println!("Calculated position: {:?}", position);
             // 验证结果在合理范围内
             assert!(position.x >= -1.0 && position.x <= 6.0);

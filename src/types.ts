@@ -1,16 +1,13 @@
-
-
-export type WarehouseItemType = 'shelf' | 'aisle'
+export type WarehouseItemType = "shelf" | "aisle";
 
 export type WarehouseItem = {
-  id: string
-  type: WarehouseItemType
-  position: [number, number, number]
-  size: [number, number, number]
-  color: string
-  movable: boolean
-}
-
+  id: string;
+  type: WarehouseItemType;
+  position: [number, number, number];
+  size: [number, number, number];
+  color: string;
+  movable: boolean;
+};
 
 export type State = {
   connected: boolean;
@@ -47,8 +44,8 @@ export type LightItem = {
   status: number;
   version: number;
   mode: number;
-  model: string,
-  data:{}
+  model: string;
+  data: {};
 };
 
 export type Positon = {
@@ -63,9 +60,17 @@ export type BeaconItem = {
   battery: number;
   date?: Date;
   rssi_map: {
-    [key: number]: [Positon, number, Date];
+    [key: number]: RssiItem;
   };
   position?: Positon;
+};
+
+export type RssiItem = {
+  position: Positon;
+  rssi: number;
+  battery: number;
+  date: Date;
+  distance: number;
 };
 
 export type DataProps = {
@@ -81,5 +86,3 @@ export type DataProps = {
   };
   [key: string]: any;
 };
-
-
