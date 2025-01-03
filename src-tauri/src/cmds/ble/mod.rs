@@ -222,7 +222,7 @@ impl Beacon {
             .iter()
             .filter(|(_, item)| {
                 let diff = Local::now().naive_local() - item.date;
-                diff.num_seconds() <= 12
+                diff.num_seconds() <= 16
             })
             .map(|(k, v)| (*k, v.clone()))
             .collect();
