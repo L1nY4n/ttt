@@ -185,7 +185,7 @@ pub struct RssiItem {
 
 impl RssiItem {
     pub fn new(rssi: i8, postion: Position, date: NaiveDateTime) -> Self {
-        let distance = calc3::LocationCalculator::new(-56.0, 1.5).rssi_to_distance(rssi as f64);
+        let distance = calc3::LocationCalculator::new(-55.0, 2.0).rssi_to_distance(rssi as f64);
         Self {
             rssi,
             position: postion,
@@ -201,10 +201,31 @@ impl Beacon {
     }
 
     fn calc_positon(&mut self, light_addr: u16, position: Position, rssi: i8) -> bool {
-        self.rssi_map.insert(
-            light_addr,
-            RssiItem::new(rssi, position, Local::now().naive_local()),
-        );
+        if let Some(prev) = self.rssi_map.get_mut(&light_addr) {
+            println!("prev={:#?}, curr: {}", prev.rssi, rssi);
+            if prev.rssi - rssi > 4 || prev.rssi - rssi < -4 {
+                let rssi = ((prev.rssi as i16 + rssi as i16) / 2) as i8;
+                self.rssi_map.insert(
+                    light_addr,
+                    RssiItem::new(rssi, position, Local::now().naive_local()),
+                );
+            }
+        } else {
+            self.rssi_map.insert(
+                light_addr,
+                RssiItem::new(rssi, position, Local::now().naive_local()),
+            );
+        }
+
+        self.rssi_map = self
+            .rssi_map
+            .iter()
+            .filter(|(_, item)| {
+                let diff = Local::now().naive_local() - item.date;
+                diff.num_seconds() <= 12
+            })
+            .map(|(k, v)| (*k, v.clone()))
+            .collect();
 
         if self.rssi_map.len() < 3 {
             return false;
@@ -223,34 +244,59 @@ impl Beacon {
             },
         ) in &rssi_vec[..std::cmp::min(rssi_vec.len(), 4)]
         {
-            let diff = Local::now().naive_local() - *date;
-
-            if diff.num_seconds() <= 30 && *rssi < -40 {
-                beacons.insert(
-                    addr.to_string(),
-                    BeaconData {
-                        position: nalgebra::Vector3::new(postion.x, postion.y, postion.z),
-                        rssi: *rssi as f64,
-                    },
-                );
-            }
+            beacons.insert(
+                addr.to_string(),
+                BeaconData {
+                    position: nalgebra::Vector3::new(postion.x, postion.y, postion.z),
+                    rssi: *rssi as f64,
+                },
+            );
         }
 
-        if beacons.len() < 3 {
-            println!("beacons len < 3");
+        if beacons.len() < 4 {
+            println!("beacons len < 4");
             return false;
         }
 
-        let pos = calc3::LocationCalculator::new(-56.0, 1.5).calculate_position_2d(&beacons);
+        let pos = calc3::LocationCalculator::new(-55.0, 2.0).calculate_position_2d(&beacons);
         if let Some(pos) = pos {
             println!("calc_positon={:#?}", pos);
 
-            self.position = Some(Position {
-                x: pos.x,
-                y: pos.y,
-                z: pos.z,
-            });
-            true
+            if let Some(prev) = self.position.as_ref() {
+                let distance = pos.metric_distance(&nalgebra::Vector3::new(prev.x, prev.y, prev.z));
+                //  平滑位置变化
+
+                match distance {
+                    d if d < 0.5 => {
+                        self.position = Some(Position {
+                            x: pos.x,
+                            y: pos.y,
+                            z: pos.z,
+                        });
+                        true
+                    }
+                    // d if d > 2.0 => {
+                    //     println!("distance > 3.0");
+                    //     self.position = None;
+                    //     false
+                    // }
+                    _ => {
+                        self.position = Some(Position {
+                            x: (pos.x + prev.x) / 2.0,
+                            y: (pos.y + prev.y) / 2.0,
+                            z: (pos.z + prev.z) / 2.0,
+                        });
+                        true
+                    }
+                }
+            } else {
+                self.position = Some(Position {
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z,
+                });
+                true
+            }
         } else {
             println!("calc_positon failed");
             false
