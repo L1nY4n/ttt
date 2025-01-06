@@ -30,14 +30,22 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_persisted_scope::init())
         .manage(cmds::broadcast::BroadcastState::new())
-     
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             app.manage(cmds::ble::State::new(app.app_handle().clone()));
-           
+
             #[cfg(desktop)]
             tray::create_tray(app)?;
             Ok(())
+        })
+        .on_window_event(|window, event| match event {
+            tauri::WindowEvent::CloseRequested { api: _, .. } => {
+                if window.label() == "main" {
+                    window.app_handle().exit(0);
+                }
+            }
+
+            _ => {}
         })
         .invoke_handler(tauri::generate_handler![
             cmds::broadcast::check_broadcast,
