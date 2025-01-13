@@ -30,7 +30,7 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@react-spring/three": "^9.7.5",
     "@react-three/drei": "^9.120.4",
-    "@react-three/fiber": "9.0.0-rc.1",
+    "@react-three/fiber": "9.0.0-rc.3",
     "@react-three/rapier": "^1.5.0",
     "@tanstack/react-virtual": "^3.8.4",
     "@tauri-apps/api": "^2.0.0-beta.14",
