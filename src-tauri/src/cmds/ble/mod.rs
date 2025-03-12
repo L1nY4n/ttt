@@ -315,10 +315,10 @@ async fn process_message(app_handle: tauri::AppHandle, data: MqttRecvData) {
     // let _ = app_handle.emit("mqtt_msg", data.clone());
     let s = app_handle.state::<Mutex<State>>();
     let mut s = s.lock().await;
-    match data.topic.split("/").collect::<Vec<&str>>().as_slice() {
-        ["", "application", "GW-BM-TCP", "device", gw_id, "up"] => {
+    match data.topic.split("/").collect::<Vec<&str>>().as_slice() { 
+        ["", "application", "GW-BM-TCP", "device", gw_id, "up", "gen",_light_id] => {
             match serde_json::from_str(&data.payload) {
-                Ok(msg) => match protocol::handle_message(msg) {
+                Ok(msg) => match protocol::handle_gen_message(msg) {
                     Ok(packet) => match packet {
                         protocol::Packet::GatewayHeatbeat {
                             model,
@@ -390,7 +390,33 @@ async fn process_message(app_handle: tauri::AppHandle, data: MqttRecvData) {
                 }
             }
         }
+        ["", "application", "GW-BM-TCP", "device", _gw_id, "up", "ibeacon",_light_id]  =>{
+            match serde_json::from_str(&data.payload) {
+                Ok(msg) => match protocol::handle_gen_message(msg) {
+                    Ok(packet) => match packet {
+         
+                        protocol::Packet::LightBeacon {
+                            light_addr,
+                            beacons,
+                        } => beacons.iter().for_each(|(id, rssi, battery)| {
+                            if s.update_beacon_rssi(*id, *rssi, *battery, light_addr) {
+                                let _ = app_handle.emit("beacon_update", s.beacon.get(id));
+                            }
+                        }),
+                        _ =>{
 
+                        }
+                    },
+                    Err(err) => {
+                        println!("handle_message err ={}", err);
+                    }
+                },
+                Err(err) => {
+                    println!("process_message {} --- err ={}", data.payload, err);
+                }
+            }
+
+        }
         _ => {
             println!("process_message topic ={}", data.topic);
         }

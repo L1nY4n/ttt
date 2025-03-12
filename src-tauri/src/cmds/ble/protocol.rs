@@ -129,7 +129,7 @@ pub enum Packet {
     },
 }
 
-pub fn handle_message(msg: Message) -> Result<Packet, Error> {
+pub fn handle_gen_message(msg: Message) -> Result<Packet, Error> {
     match msg.opcode {
         val if val == OpType::GW_HEATBEAT_DATA as u8 => {
             // {opcode: 86, version: "17", dev_model: "Turbo GW-BM-TCP-1", dev_id: "02000016CB0A", ipaddr: "192.168.100.162"}
