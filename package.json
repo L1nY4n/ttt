@@ -31,7 +31,7 @@
     "@react-spring/three": "^10.0.1",
     "@react-three/drei": "^10.0.5",
     "@react-three/fiber": "9.1.2",
-    "@react-three/rapier": "^1.5.0",
+    "@react-three/rapier": "^2.1.0",
     "@tanstack/react-virtual": "^3.8.4",
     "@tauri-apps/api": "^2.0.0-beta.14",
     "@tauri-apps/plugin-log": "2.2.1",
