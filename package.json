@@ -74,7 +74,7 @@
     "autoprefixer": "^10.4.19",
     "internal-ip": "8.0.0",
     "postcss": "^8.4.39",
-    "tailwindcss": "^3.4.4",
+    "tailwindcss": "^4.1.11",
     "typescript": "^5.5.3",
     "vite": "6.2.3"
   }
