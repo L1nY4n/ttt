@@ -1,6 +1,6 @@
 [package]
 name = "ttt"
-version = "0.0.0"
+version = "0.1.8"
 description = "hyz hardware device debug tool "
 authors = ["ly"]
 edition = "2021"
@@ -12,16 +12,16 @@ name = "x_box_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.6", features = [] }
+tauri-build = { version = "2.6.3", features = [] }
 
 [dependencies]
-tauri = { version = "2.3.1", features = [
+tauri = { version = "2.11.5", features = [
     "devtools",
     "tray-icon",
     "image-ico",
     "image-png",
 ] }
-tauri-plugin-shell = "2.2.0"
+tauri-plugin-shell = "2.3.5"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 serde_with = { version = "3.12.0", features = ["base64"] }
@@ -30,13 +30,13 @@ tokio = { version = "1.44.0", features = ["full"] }
 thiserror = "2.0.12"
 chrono = { version = "0.4.40", features = ["serde"] }
 local-ip-address = "0.6.3"
-tauri-plugin-process = "2"
+tauri-plugin-process = "2.3.1"
 anyhow = "1.0.97"
-tauri-plugin-persisted-scope = "2"
-tauri-plugin-store = "2"
-tauri-plugin-log = "2.3.0"
+tauri-plugin-persisted-scope = "2.3.7"
+tauri-plugin-store = "2.4.3"
+tauri-plugin-log = "2.9.0"
 log = "0.4.26"
-tauri-plugin-fs = "2"
+tauri-plugin-fs = "2.5.1"
 
 ndarray = "0.16.1"
 nalgebra = "0.33.2"
@@ -52,5 +52,5 @@ bytes = { version =  "1.9.0", features = ["serde"] }
 crc = "3.2.1"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-single-instance = "2.2.2"
-tauri-plugin-updater = { version = "2.6.0"}
+tauri-plugin-single-instance = "2.4.3"
+tauri-plugin-updater = { version = "2.10.1"}

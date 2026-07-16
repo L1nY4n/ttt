@@ -3,15 +3,17 @@ use serde::{Deserialize, Serialize};
 
 use crate::protocol::{bytes_serializable::BytesSerializable, command::base::Network};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct DeviceInfo {
     pub network: Network,
+    pub extra: Vec<u8>,
 }
 
 impl BytesSerializable for DeviceInfo {
     fn to_bytes(&self) -> bytes::Bytes {
         let mut bytes = BytesMut::new();
         bytes.put_slice(&self.network.to_bytes());
+        bytes.put_slice(&self.extra);
         bytes.freeze()
     }
 
@@ -19,7 +21,15 @@ impl BytesSerializable for DeviceInfo {
     where
         Self: Sized,
     {
-        let network = Network::from_bytes(bytes)?;
-        Ok(DeviceInfo { network })
+        if bytes.len() < 17 {
+            return Err(crate::error::Error::InvalidCommand);
+        }
+        let network = Network::from_bytes(bytes.slice(0..17))?;
+        let extra = if bytes.len() > 17 {
+            bytes[17..].to_vec()
+        } else {
+            Vec::new()
+        };
+        Ok(DeviceInfo { network, extra })
     }
 }

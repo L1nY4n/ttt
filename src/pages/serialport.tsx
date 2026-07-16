@@ -266,8 +266,8 @@ export default function SerialPort() {
 
   return (
     <div ref={rootRef} className="w-full h-full">
-      <ResizablePanelGroup direction={"horizontal"}>
-        <ResizablePanel defaultSize={30} maxSize={maxSize}>
+      <ResizablePanelGroup orientation="horizontal">
+        <ResizablePanel defaultSize="30" maxSize={`${maxSize}%`}>
           <ul className="grid w-full gap-3 p-2">
             <li className="flex items-center justify-between">
               <Label>Port Name</Label>
@@ -437,7 +437,7 @@ export default function SerialPort() {
           <Separator />
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel defaultSize={70} minSize={75} maxSize={80}>
+        <ResizablePanel defaultSize="70" minSize="75" maxSize="80">
           <div
             ref={termRef}
             className={cn("h-full bg-black ", termMode ? "block" : "hidden")}
@@ -446,8 +446,8 @@ export default function SerialPort() {
           </div>
 
           {!termMode && (
-            <ResizablePanelGroup direction="vertical">
-              <ResizablePanel defaultSize={80} minSize={50} maxSize={85}>
+            <ResizablePanelGroup orientation="vertical">
+              <ResizablePanel defaultSize="80" minSize="50" maxSize="85">
                 <ScrollArea className="h-full p-1">
                   {msgList.map((x, i) => (
                     <div className="p-1 text-xs  mb-[2px]" key={i}>
@@ -458,7 +458,7 @@ export default function SerialPort() {
                 </ScrollArea>
               </ResizablePanel>
               <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={20} minSize={15} maxSize={50}>
+              <ResizablePanel defaultSize="20" minSize="15" maxSize="50">
                 <div className="flex h-full gap-1 p-2">
                   <Textarea
                     onChange={(e) => setSendMsg(e.target.value)}

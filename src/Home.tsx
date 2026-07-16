@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { listen } from "@tauri-apps/api/event";
-import "./globals.css";
 import { RadarIcon, Settings, BluetoothIcon, Usb, QrCode } from "lucide-react";
 import { check } from "@tauri-apps/plugin-updater";
 import { invoke } from "@tauri-apps/api/core";
@@ -72,8 +71,8 @@ function Home() {
 
   return (
     <ResizablePanelGroup
-      direction="horizontal"
-      onLayout={(sizes: number[]) => {
+      orientation="horizontal"
+      onLayoutChanged={(sizes) => {
         document.cookie = `react-resizable-panels:layout=${JSON.stringify(
           sizes
         )}`;
@@ -81,16 +80,13 @@ function Home() {
       className="items-stretch h-screen"
     >
       <ResizablePanel
-        defaultSize={25}
-        collapsedSize={collapsedSize}
+        defaultSize="25"
+        collapsedSize={`${collapsedSize}%`}
         collapsible={true}
-        minSize={18}
-        maxSize={maxSize}
-        onCollapse={() => {
-          setIsCollapsed(true);
-        }}
-        onExpand={() => {
-          setIsCollapsed(false);
+        minSize="18"
+        maxSize={`${maxSize}%`}
+        onResize={({ asPercentage }) => {
+          setIsCollapsed(asPercentage <= collapsedSize);
         }}
         className={cn(
           isCollapsed && "min-w-[50px] transition-all duration-300 ease-in-out"
@@ -159,9 +155,9 @@ function Home() {
         />
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={75} minSize={70}>
+      <ResizablePanel defaultSize="75" minSize="70">
         <Routes>
-          <Route index path="/broadcast" element={<Broadcast />} />
+          <Route index element={<Broadcast />} />
           <Route path="/serialport" element={<SerialPort />} />
           <Route path="/ble" element={<BluetoothView />} />
           <Route path="/qrac" element={<QRAC />} />

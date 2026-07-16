@@ -18,6 +18,12 @@ pub const TCP_SERVER_GET_RESP: u16 = TCP_SERVER_GET + 1;
 pub const TCP_SERVER_SET: u16 = 0x0112u16;
 pub const TCP_SERVER_SET_RESP: u16 = TCP_SERVER_SET + 1;
 
+pub const MQTT_GET: u16 = 0x0120u16;
+pub const MQTT_GET_RESP: u16 = MQTT_GET + 1;
+
+pub const MQTT_SET: u16 = 0x0122u16;
+pub const MQTT_SET_RESP: u16 = MQTT_SET + 1;
+
 // control
 pub const REBOOT: u16 = 0x1000u16;
 pub const REBOOT_RESP: u16 = REBOOT + 1;

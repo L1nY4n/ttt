@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./globals.css";
 import "./App.css";
 import Home  from "./Home";
 import { QuitConfirm } from "./pages/quit_confirm";
@@ -11,7 +12,7 @@ function App() {
    
       <Route path="/updater" element={<Updater />} />
       <Route path="/quit" element={<QuitConfirm />} />
-      <Route index path="/*" element={<Home />} />
+      <Route path="/*" element={<Home />} />
     </Routes>
     </BrowserRouter>
   );

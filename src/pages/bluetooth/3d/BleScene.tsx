@@ -54,7 +54,11 @@ const Wall = memo(() => {
 
 const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
   const [selectedNodeId, _setSelectedNodeId] = useState<string | null>(null);
-  const [lookat, setLookat] = useState([5.0, 0.0, 5.0]);
+  const [lookat, setLookat] = useState<[number, number, number]>([
+    5.0,
+    0.0,
+    5.0,
+  ]);
 
   const memoizedBeacons = useMemo(() => {
     return beacons.map((beacon) => (
@@ -64,7 +68,7 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
         nodes={lights}
         onClick={(sel) => {
           if (sel) {
-            const pos = beacon.position
+            const pos: [number, number, number] = beacon.position
               ? [beacon.position.x, 0.05, beacon.position.z]
               : [5.0, 0.0, 5.0];
             setLookat(pos);
@@ -132,7 +136,7 @@ const BleSence: React.FC<WarehouseSceneProps> = memo(({ lights, beacons }) => {
       <Suspense fallback={<Loader2 size={64} className="animate-spin" />}>
         <Canvas
           camera={{ position: [10, 5, 5], fov: 60 }}
-          shadows
+          shadows="basic"
           // frameloop="demand"
         >
           <color attach="background" args={["#111"]} />

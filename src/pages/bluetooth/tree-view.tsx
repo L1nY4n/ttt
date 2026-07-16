@@ -147,21 +147,17 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
           direction,
         }}
       >
-        <div className={cn("size-full", className)}>
+        <div className={cn("size-full", className)} {...props}>
           <ScrollArea
             ref={ref}
             className="relative h-full px-2"
             dir={dir as Direction}
           >
             <AccordionPrimitive.Root
-              {...props}
               type="multiple"
-              defaultValue={expendedItems}
-              value={expendedItems}
+              value={expendedItems ?? []}
               className="flex flex-col gap-1"
-              onValueChange={(value) =>
-                setExpendedItems((prev) => [...(prev ?? []), value[0]])
-              }
+              onValueChange={setExpendedItems}
               dir={dir as Direction}
             >
               {children}
@@ -205,6 +201,7 @@ interface BaseComponentProps
 type GwProps = {
   expendedItems?: string[];
   element:  React.ReactNode;
+  actions?: React.ReactNode;
   isSelectable?: boolean;
   isSelect?: boolean;
 } & BaseComponentProps;
@@ -218,20 +215,19 @@ const Gateway = forwardRef<
     {
       className,
       element,
+      actions,
       value,
       isSelectable = true,
       isSelect,
       children,
       ...props
     },
-    _
+    ref
   ) => {
     const {
       direction,
-      handleExpand,
       expendedItems,
       indicator,
-      setExpendedItems,
       openIcon,
       closeIcon,
     } = useTree();
@@ -239,41 +235,41 @@ const Gateway = forwardRef<
     return (
       <AccordionPrimitive.Item
         {...props}
+        ref={ref}
         value={value}
         className="relative h-full overflow-hidden "
       >
-        <AccordionPrimitive.Trigger
+        <div
           className={cn(
-            `flex items-center gap-1 text-sm rounded-md`,
-            className,
-            {
-              "bg-muted rounded-md": isSelect && isSelectable,
-              "cursor-pointer": isSelectable,
-              "cursor-not-allowed opacity-50": !isSelectable,
-            }
+            "flex items-start rounded-md bg-gray-200",
+            isSelect && isSelectable && "bg-muted",
+            className
           )}
-          disabled={!isSelectable}
-          onClick={() => handleExpand(value)}
         >
-          {expendedItems?.includes(value)
-            ? openIcon ?? <RadioTower className="w-4 h-4" />
-            : closeIcon ?? <RadioTower className="w-4 h-4" />}
-          <span>{element}</span>
-        </AccordionPrimitive.Trigger>
+          <AccordionPrimitive.Trigger
+            className={cn(
+              "flex min-w-0 flex-1 items-center gap-1 rounded-md text-left text-sm",
+              isSelectable ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+            )}
+            disabled={!isSelectable}
+          >
+            <span className="pl-2">
+              {expendedItems?.includes(value)
+                ? openIcon ?? <RadioTower className="h-4 w-4" />
+                : closeIcon ?? <RadioTower className="h-4 w-4" />}
+            </span>
+            <span className="min-w-0 flex-1">{element}</span>
+          </AccordionPrimitive.Trigger>
+          {actions && <div className="shrink-0 p-2">{actions}</div>}
+        </div>
         <AccordionPrimitive.Content className="text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down relative overflow-hidden h-full">
           {element && indicator && <TreeIndicator aria-hidden="true" />}
-          <AccordionPrimitive.Root
+          <div
             dir={direction}
-            type="multiple"
             className="flex flex-wrap gap-1 py-1 ml-5 rtl:mr-5"
-            defaultValue={expendedItems}
-            value={expendedItems}
-            onValueChange={(value) => {
-              setExpendedItems?.((prev) => [...(prev ?? []), value[0]]);
-            }}
           >
             {children}
-          </AccordionPrimitive.Root>
+          </div>
         </AccordionPrimitive.Content>
       </AccordionPrimitive.Item>
     );
@@ -283,14 +279,14 @@ const Gateway = forwardRef<
 Gateway.displayName = "Gateway";
 
 const Light = forwardRef<
-  HTMLButtonElement,
+  HTMLDivElement,
   {
     value: string;
     handleSelect?: (id: string) => void;
     isSelectable?: boolean;
     isSelect?: boolean;
     fileIcon?: React.ReactNode;
-  } & React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
+  } & React.HTMLAttributes<HTMLDivElement>
 >(
   (
     {
@@ -301,6 +297,7 @@ const Light = forwardRef<
       isSelect,
       fileIcon,
       children,
+      onClick,
       ...props
     },
     ref
@@ -308,26 +305,26 @@ const Light = forwardRef<
     const { direction, selectedId, selectItem } = useTree();
     const isSelected = isSelect ?? selectedId === value;
     return (
-      <AccordionPrimitive.Item value={value} className="relative">
-        <AccordionPrimitive.Trigger
-          ref={ref}
-          {...props}
-          dir={direction}
-          disabled={!isSelectable}
-          aria-label="File"
-          className={cn(
-            "cursor-pointer text-sm pr-1 rtl:pl-1 rtl:pr-0 rounded-md bg bg-blue-50  duration-200 ease-in-out",
-            {
-              "bg-blue-100 ": isSelected && isSelectable,
-            },
-            isSelectable ? "cursor-pointer" : "opacity-50 cursor-not-allowed",
-            className
-          )}
-          onClick={() => selectItem(value)}
-        >
-          {children}
-        </AccordionPrimitive.Trigger>
-      </AccordionPrimitive.Item>
+      <div
+        ref={ref}
+        {...props}
+        dir={direction}
+        role="treeitem"
+        aria-selected={isSelected}
+        aria-disabled={!isSelectable}
+        className={cn(
+          "rounded-md bg-blue-50 pr-1 text-sm duration-200 ease-in-out rtl:pl-1 rtl:pr-0",
+          isSelected && isSelectable && "bg-blue-100",
+          isSelectable ? "cursor-pointer" : "cursor-not-allowed opacity-50",
+          className
+        )}
+        onClick={(event) => {
+          onClick?.(event);
+          if (isSelectable && !event.defaultPrevented) selectItem(value);
+        }}
+      >
+        {children}
+      </div>
     );
   }
 );

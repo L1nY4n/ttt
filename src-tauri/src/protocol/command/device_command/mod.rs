@@ -6,7 +6,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::protocol::{
     bytes_serializable::BytesSerializable,
-    command::{NETWORK_GET_RESP, SCAN_RESP},
+    command::{
+        base::{network::IpWithPort, MqttConfig},
+        MQTT_GET_RESP, MQTT_SET_RESP, NETWORK_GET_RESP, NETWORK_SET_RESP, REBOOT_RESP, SCAN_RESP,
+        TCP_SERVER_GET_RESP, TCP_SERVER_SET_RESP,
+    },
     Command,
 };
 
@@ -16,7 +20,14 @@ pub mod device_msg;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum DeviceCommand {
-    Info(DeviceInfo),
+    ScanResp(DeviceInfo),
+    NetworkGetResp(DeviceInfo),
+    NetworkSetResp,
+    TcpServerGetResp(IpWithPort),
+    TcpServerSetResp,
+    MqttGetResp(MqttConfig),
+    MqttSetResp,
+    RebootResp,
 }
 
 impl Display for DeviceCommand {
@@ -28,14 +39,28 @@ impl Display for DeviceCommand {
 impl Command for DeviceCommand {
     fn code(&self) -> u16 {
         match self {
-            DeviceCommand::Info(_info) => SCAN_RESP,
+            DeviceCommand::ScanResp(_) => SCAN_RESP,
+            DeviceCommand::NetworkGetResp(_) => NETWORK_GET_RESP,
+            DeviceCommand::NetworkSetResp => NETWORK_SET_RESP,
+            DeviceCommand::TcpServerGetResp(_) => TCP_SERVER_GET_RESP,
+            DeviceCommand::TcpServerSetResp => TCP_SERVER_SET_RESP,
+            DeviceCommand::MqttGetResp(_) => MQTT_GET_RESP,
+            DeviceCommand::MqttSetResp => MQTT_SET_RESP,
+            DeviceCommand::RebootResp => REBOOT_RESP,
         }
     }
 }
 impl BytesSerializable for DeviceCommand {
     fn to_bytes(&self) -> bytes::Bytes {
         let cmd_bytes = match self {
-            DeviceCommand::Info(info) => info.to_bytes(),
+            DeviceCommand::ScanResp(info) => info.to_bytes(),
+            DeviceCommand::NetworkGetResp(info) => info.to_bytes(),
+            DeviceCommand::NetworkSetResp => Bytes::new(),
+            DeviceCommand::TcpServerGetResp(ip_and_port) => ip_and_port.to_bytes(),
+            DeviceCommand::TcpServerSetResp => Bytes::new(),
+            DeviceCommand::MqttGetResp(mqtt_config) => mqtt_config.to_bytes(),
+            DeviceCommand::MqttSetResp => Bytes::new(),
+            DeviceCommand::RebootResp => Bytes::new(),
         };
         let cmd_len = cmd_bytes.len();
         let mut bytes = BytesMut::with_capacity(cmd_len + 4);
@@ -58,8 +83,20 @@ impl BytesSerializable for DeviceCommand {
             bytes.slice(4..(4 + len as usize))
         };
         match code {
-            SCAN_RESP => Ok(DeviceCommand::Info(DeviceInfo::from_bytes(cmd_bytes)?)),
-            NETWORK_GET_RESP => Ok(DeviceCommand::Info(DeviceInfo::from_bytes(cmd_bytes)?)),
+            SCAN_RESP => Ok(DeviceCommand::ScanResp(DeviceInfo::from_bytes(cmd_bytes)?)),
+            NETWORK_GET_RESP => Ok(DeviceCommand::NetworkGetResp(DeviceInfo::from_bytes(
+                cmd_bytes,
+            )?)),
+            NETWORK_SET_RESP => Ok(DeviceCommand::NetworkSetResp),
+            TCP_SERVER_GET_RESP => Ok(DeviceCommand::TcpServerGetResp(IpWithPort::from_bytes(
+                cmd_bytes,
+            )?)),
+            TCP_SERVER_SET_RESP => Ok(DeviceCommand::TcpServerSetResp),
+            MQTT_GET_RESP => Ok(DeviceCommand::MqttGetResp(MqttConfig::from_bytes(
+                cmd_bytes,
+            )?)),
+            MQTT_SET_RESP => Ok(DeviceCommand::MqttSetResp),
+            REBOOT_RESP => Ok(DeviceCommand::RebootResp),
             _ => Err(crate::error::Error::NotImplement),
         }
     }

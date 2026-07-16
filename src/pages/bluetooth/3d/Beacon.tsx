@@ -26,77 +26,75 @@ export const Beacon: React.FC<
     setSelected(!selected);
     onClick(!selected);
   };
-  return (
-    <Select enabled={selected}>
-      <group>
-        <mesh
-          ref={meshRef}
-          position={currentPosition}
-          onPointerUp={toggleSelect}
-        >
-          <boxGeometry args={[0.04, 0.1, 0.04]} />
 
-          <meshStandardMaterial
-            color={`#${id.toString(16)}`}
-            emissive={`#${id.toString(16)}`}
-            emissiveIntensity={0.3}
-          />
-          <Html position={[0, 0.1, 0]} center>
-            <span className="text-xs text-white bg-transparent bg-black select-none whitespace-nowrap">
-              {id.toString(16).toUpperCase()} ({currentPosition.x.toFixed(2)},
-              {currentPosition.z.toFixed(2)})
-            </span>
-          </Html>
-        </mesh>
+  const content = (
+    <group>
+      <mesh ref={meshRef} position={currentPosition} onPointerUp={toggleSelect}>
+        <boxGeometry args={[0.04, 0.1, 0.04]} />
 
-        {selected &&
-          position &&
-          rssi_map &&
-          Object.values(rssi_map).map(({ position: pos, rssi, distance }) => {
-            const start = [
-              currentPosition.x,
-              currentPosition.y,
-              currentPosition.z,
-            ];
-            const end = [pos.x, pos.y, pos.z];
-            const rssi_tooltip = [
-              (end[0] + start[0]) / 2,
-              (end[1] + start[1]) / 2,
-              (end[2] + start[2]) / 2,
-            ];
+        <meshStandardMaterial
+          color={`#${id.toString(16)}`}
+          emissive={`#${id.toString(16)}`}
+          emissiveIntensity={0.3}
+        />
+        <Html position={[0, 0.1, 0]} center>
+          <span className="text-xs text-white bg-transparent bg-black select-none whitespace-nowrap">
+            {id.toString(16).toUpperCase()} ({currentPosition.x.toFixed(2)},
+            {currentPosition.z.toFixed(2)})
+          </span>
+        </Html>
+      </mesh>
 
-            const real_distance = currentPosition.distanceTo(
-              new THREE.Vector3(pos.x, pos.y, pos.z)
-            );
-            return (
-              <>
-                <Line
-                  points={[start, end]}
-                  color={`#${id.toString(16)}`}
-                  dashed
-                  dashSize={0.03}
-                  gapSize={0.02}
-                  linewidth={0.3}
-                >
-                  <lineDashedMaterial color={`#${id.toString(16)}`} />
-                </Line>
-                <mesh
-                  position={rssi_tooltip as [x: number, y: number, z: number]}
-                >
-                  <Html center>
-                    <div className="w-24 text-xs text-white translate-x-1 select-none ">
-                      <div className="text-green-400"> {rssi} </div>
-                      <div className="text-xs text-yellow-400">
-                        ({real_distance.toFixed(2)} /{" "}
-                        {(distance - real_distance).toFixed(2)})
-                      </div>
+      {selected &&
+        position &&
+        rssi_map &&
+        Object.values(rssi_map).map(({ position: pos, rssi, distance }) => {
+          const start: [number, number, number] = [
+            currentPosition.x,
+            currentPosition.y,
+            currentPosition.z,
+          ];
+          const end: [number, number, number] = [pos.x, pos.y, pos.z];
+          const rssi_tooltip: [number, number, number] = [
+            (end[0] + start[0]) / 2,
+            (end[1] + start[1]) / 2,
+            (end[2] + start[2]) / 2,
+          ];
+
+          const real_distance = currentPosition.distanceTo(
+            new THREE.Vector3(pos.x, pos.y, pos.z)
+          );
+          return (
+            <React.Fragment
+              key={`${id.toString(16)}-${pos.x}-${pos.y}-${pos.z}-${rssi}`}
+            >
+              <Line
+                points={[start, end]}
+                color={`#${id.toString(16)}`}
+                dashed
+                dashSize={0.03}
+                gapSize={0.02}
+                linewidth={0.3}
+              >
+                <lineDashedMaterial color={`#${id.toString(16)}`} />
+              </Line>
+              <mesh position={rssi_tooltip as [x: number, y: number, z: number]}>
+                <Html center>
+                  <div className="w-24 text-xs text-white translate-x-1 select-none ">
+                    <div className="text-green-400"> {rssi} </div>
+                    <div className="text-xs text-yellow-400">
+                      ({real_distance.toFixed(2)} /{" "}
+                      {(distance - real_distance).toFixed(2)})
                     </div>
-                  </Html>
-                </mesh>
-              </>
-            );
-          })}
-      </group>
-    </Select>
+                  </div>
+                </Html>
+              </mesh>
+            </React.Fragment>
+          );
+        })}
+    </group>
+  );
+  return (
+    selected ? <Select>{content}</Select> : content
   );
 });

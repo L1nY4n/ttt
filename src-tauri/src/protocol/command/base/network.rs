@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::protocol::bytes_serializable::BytesSerializable;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Network {
     pub dhcp: u8,
     pub ipaddr: Ipv4Addr,
@@ -53,7 +53,7 @@ impl BytesSerializable for Network {
     where
         Self: Sized,
     {
-        if bytes.len() < 17 {
+        if bytes.len() != 17 {
             return Err(crate::error::Error::InvalidCommand);
         }
         let dhcp = bytes[0];
@@ -72,10 +72,10 @@ impl BytesSerializable for Network {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct IpWithPort {
     pub ip: Ipv4Addr,
-    port: u16,
+    pub port: u16,
 }
 
 impl IpWithPort {
@@ -96,7 +96,7 @@ impl BytesSerializable for IpWithPort {
     where
         Self: Sized,
     {
-        if bytes.len() < 6 {
+        if bytes.len() != 6 {
             return Err(crate::error::Error::InvalidCommand);
         }
         let ip = u32::from_be_bytes(bytes[0..4].try_into().unwrap());

@@ -373,8 +373,8 @@ function Bluetooth() {
             <Tree elements={state}>
               {Object.entries(state.gateway).map(([gw_key, gw]) => {
                 const title = (
-                  <div className="p-2 bg-gray-200 rounded-md">
-                    <div className="flex items-center justify-between mb-1">
+                  <div className="p-2">
+                    <div className="mb-1 flex items-center">
                       <span>
                         <b> {gw_key}</b>
                         <code className="text-orange-400">
@@ -387,31 +387,6 @@ function Bluetooth() {
                         </code>
                       </span>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger>
-                          <span className="flex p-0.5 rounded-md bg-slate-200 ">
-                            <Settings2 className="h-4" />
-                          </span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuGroup>
-                            {statusList.map((item) => (
-                              <DropdownMenuItem
-                                key={item.value}
-                                onClick={(event) => {
-                                  onStatusChange(gw_key, 0xffff, item.value);
-                                  event.stopPropagation();
-                                }}
-                              >
-                                {item.title}
-                                <DropdownMenuShortcut>
-                                  {item.icon}
-                                </DropdownMenuShortcut>
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
 
                     <div>
@@ -419,19 +394,61 @@ function Bluetooth() {
                         <i className="text-xs text-neutral-600">{gw.model}</i>
                         <Separator className="mx-1" orientation="vertical" />
                         <i className="text-blue-400">{gw.ip} </i>
-                        <a
-                          target="_blank"
-                          href={"http://" + gw.ip}
-                          className="ml-1"
-                        >
-                          <SquareArrowOutUpRight className="w-3 h-3" />
-                        </a>
                       </div>
                     </div>
                   </div>
                 );
+                const actions = (
+                  <div className="flex items-center gap-1">
+                    <Button asChild size="icon" variant="ghost" className="size-7">
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={"http://" + gw.ip}
+                        aria-label={`Open gateway ${gw_key}`}
+                      >
+                        <SquareArrowOutUpRight className="h-3.5 w-3.5" />
+                      </a>
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="size-7"
+                          aria-label={`Configure gateway ${gw_key}`}
+                        >
+                          <Settings2 className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuGroup>
+                          {statusList.map((item) => (
+                            <DropdownMenuItem
+                              key={item.value}
+                              onClick={() => {
+                                onStatusChange(gw_key, 0xffff, item.value);
+                              }}
+                            >
+                              {item.title}
+                              <DropdownMenuShortcut>
+                                {item.icon}
+                              </DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                );
                 return (
-                  <Gateway element={title} value={gw_key} key={gw_key}>
+                  <Gateway
+                    element={title}
+                    actions={actions}
+                    value={gw_key}
+                    key={gw_key}
+                  >
                     {Object.values(state.light)
                       .filter((light) => light.gateway === gw_key)
                       .map((light) => (

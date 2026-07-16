@@ -37,7 +37,6 @@ export function Nav({ links, isCollapsed }: NavProps) {
                    to={link.path}
                   className={cn(
                     buttonVariants({ variant:  link.path === location.pathname? 'default': 'ghost', size: "icon" }),
-                    "h-9 w-9",
                     link.variant === 'default' &&
                       "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
                   )}
