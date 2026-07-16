@@ -39,12 +39,13 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| match event {
-            tauri::WindowEvent::CloseRequested { api: _, .. } => {
-                if window.label() == "main" {
-                    window.app_handle().exit(0);
-                }
+            tauri::WindowEvent::CloseRequested { .. } if window.label() == "main" => {
+                window.app_handle().exit(0);
             }
-
+            tauri::WindowEvent::CloseRequested { api, .. } if window.label() == "update" => {
+                api.prevent_close();
+                let _ = window.hide();
+            }
             _ => {}
         })
         .invoke_handler(tauri::generate_handler![

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { listen } from "@tauri-apps/api/event";
-import { RadarIcon, Settings, BluetoothIcon, Usb, QrCode } from "lucide-react";
+import { RadarIcon, Settings, BluetoothIcon, Usb, QrCode, RefreshCw } from "lucide-react";
 import { check } from "@tauri-apps/plugin-updater";
 import { invoke } from "@tauri-apps/api/core";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,8 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Nav } from "./nav.tsx";
 
@@ -31,24 +33,44 @@ function Home() {
   //const [windowsSize,setWindowsSize] = useState(800);
   const [maxSize, setMaxSize] = useState(30);
   const [collapsedSize, setCollapsedSize] = useState(5);
+  const hasCheckedForUpdates = useRef(false);
 
-  let avoidExtraCall = false;
+  function openUpdater() {
+    void invoke("check_update").catch((error) => {
+      toast.error("无法打开更新窗口", {
+        description: String(error),
+      });
+    });
+  }
 
   useEffect(() => {
-    if (!avoidExtraCall) {
-      avoidExtraCall = true;
-      listen("system_msg", ({ payload }) => {
+    let unlistenSystemMessage: (() => void) | undefined;
+
+    void (async () => {
+      unlistenSystemMessage = await listen("system_msg", ({ payload }) => {
         const ev = payload as SystemEvent;
         toast.info(ev.title, {
           description: ev.description,
         });
       });
-      check().then((update) => {
-        if (update?.available) {
-          invoke("check_update");
+
+      if (!hasCheckedForUpdates.current) {
+        hasCheckedForUpdates.current = true;
+
+        try {
+          const update = await check();
+          if (update) {
+            await invoke("check_update");
+          }
+        } catch (error) {
+          console.warn("Unable to check for updates at startup", error);
         }
-      });
-    }
+      }
+    })();
+
+    return () => {
+      unlistenSystemMessage?.();
+    };
   }, []);
 
   useEffect(() => {
@@ -89,6 +111,7 @@ function Home() {
           setIsCollapsed(asPercentage <= collapsedSize);
         }}
         className={cn(
+          "flex h-full flex-col",
           isCollapsed && "min-w-[50px] transition-all duration-300 ease-in-out"
         )}
       >
@@ -153,6 +176,23 @@ function Home() {
             },
           ]}
         />
+        <div className={cn("mt-auto px-2 pb-2", isCollapsed && "flex justify-center")}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size={isCollapsed ? "icon" : "sm"}
+                className={cn(!isCollapsed && "w-full justify-start")}
+                onClick={openUpdater}
+              >
+                <RefreshCw className="size-4" />
+                {!isCollapsed && <span>检查更新</span>}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">检查更新</TooltipContent>
+          </Tooltip>
+        </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize="75" minSize="70">

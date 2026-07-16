@@ -14,12 +14,12 @@
       {
         "title": "更新",
         "label": "update",
-        "width": 400,
-        "height": 200,
+        "width": 460,
+        "height": 320,
         "url": "/updater",
         "alwaysOnTop": true,
         "minimizable": false,
-
+        "resizable": false,
         "center": true,
         "visible": false
       },
@@ -67,7 +67,7 @@
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgwRDgzQjEyOEY0QTk4QjcKUldTM21FcVBFanZZZ0R3ak5uYXZ1RUhmUWZhNitSb2IyY2J2TlJqY1FtbnFCWmVxMEtuMDRmdXYK",
 
       "endpoints": [
-        "https://github.com/L1nY4n/hyz-box/releases/latest/download/latest.json"
+        "https://github.com/L1nY4n/ttt/releases/latest/download/latest.json"
       ]
     }
   }
